@@ -5,6 +5,7 @@ import {useRouter} from "vue-router";
 import bcrypt from 'bcryptjs';
 
 
+
 const router = useRouter();
 const username = ref('')
 const password = ref('')
@@ -54,16 +55,16 @@ const login = async () => {
   <div class="login-page">
     <form class="login-form" @submit.prevent="login">
       <div class="header">
-        <span>Willkommen zurück bei <b>beSmart AG</b> </span>
-        <a href="/register" ><br>haben sie noch kein account?</a>
+        <span>{{ $t('tloginpage.welcomeback')}}<b>TypeLeague</b> </span>
+        <a href="/register" ><br>{{ $t('tloginpage.noaccount')}}</a>
       </div>
 
       <label>Benutzername</label>
-      <input type="email" v-model="username" id="input" placeholder="geben Sie ihren Benutzernamen ein">
+      <input type="email" v-model="username" id="input" :placeholder="$t('tloginpage.username')">
       <label>Passwort</label>
-      <input type="password" v-model="password" id="input" placeholder="geben Sie ein Passwort ein">
+      <input type="password" v-model="password" id="input" :placeholder="$t('tloginpage.password')">
       <p class="error"> {{ error}}</p>
-      <button type="submit" class="login-button">LOGIN</button>
+      <button type="submit" class="login-button">{{ $t('tloginpage.loginbutton') }}</button>
 
     </form>
   </div>
