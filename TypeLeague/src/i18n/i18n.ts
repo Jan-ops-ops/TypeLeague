@@ -15,6 +15,14 @@ const messages = {
             leaderboard: "Leaderboard",
             stats: "Stats",
             training: "Training"
+        },
+        tloginpage: {
+            welcomeback: "Welcome back to ",
+            noaccount: "Don't have an account yet?",
+            username: "Please enter your username",
+            password: "Please enter your password",
+            loginbutton: "Login"
+
         }
     },
     de: {
@@ -31,6 +39,13 @@ const messages = {
             leaderboard: "Rangliste",
             stats: "Statistiken",
             training: "Training"
+        },
+        tloginpage: {
+            welcomeback: "Willkommen zurück bei ",
+            noaccount: "Du hast noch keinen Account?",
+            username: "Bitte gib deinen Benutzernamen ein",
+            password: "Bitte gib dein Passwort ein",
+            loginbutton: "Einloggen"
         }
     },
     fr: {
@@ -48,7 +63,15 @@ const messages = {
             stats: "Statistiques",
             training: "Entraînement"
 
+        },
+        tloginpage: {
+            welcomeback: "Bon retour sur ",
+            noaccount: "Vous n'avez pas encore de compte ?",
+            username: "Veuillez entrer votre nom d'utilisateur",
+            password: "Veuillez entrer votre mot de passe",
+            loginbutton: "Se connecter"
         }
+
     }
 };
 
