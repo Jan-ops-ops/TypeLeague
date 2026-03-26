@@ -1,1 +1,2 @@
 rm und erm anpassen bei Level und wordlist
+rm und erm auch noch time rausnehmen
