@@ -2,6 +2,11 @@ import { createRouter, createWebHistory } from 'vue-router'
 import Homepage from "../components/homepage.vue";
 import Registerpage from "../components/registerpage.vue";
 import Loginpage from "../components/loginpage.vue";
+import StatsPage from "../components/StatsPage.vue";
+import RoadmapPage from "../components/RoadmapPage.vue";
+import LeaguePage from "../components/LeaguePage.vue";
+import TrainingPage from "../components/TrainingPage.vue";
+import LeaderboardPage from "../components/LeaderboardPage.vue";
 
 
 const router = createRouter({
@@ -22,6 +27,36 @@ const router = createRouter({
             name: 'register',
             component: Registerpage
         },
+        {
+            path: '/stats',
+            name: 'stats',
+            component: StatsPage
+        },
+        {
+            path: '/roadmap',
+            name: 'roadmap',
+            component: RoadmapPage
+        },
+        {
+            path: '/league',
+            name: 'league',
+            component: LeaguePage
+        },
+        {
+            path: '/training',
+            name: 'training',
+            component: TrainingPage
+        },
+        {
+            path: '/leaderboard',
+            name: 'leaderboard',
+            component: LeaderboardPage
+        },
+        {
+            path: '/stats',
+            name: 'stats',
+            component: StatsPage
+        }
     ]
 })
 
