@@ -1,9 +1,12 @@
 <script setup lang="ts">
 
+import Gameboard from "./gameboard.vue";
 </script>
 
 <template>
-UNDER CONSTRUCTION
+<gameboard
+  gametext="aaa aaa aaa aaa"
+></gameboard>
 </template>
 
 <style scoped>
