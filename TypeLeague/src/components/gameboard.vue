@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed, onMounted, onUnmounted, ref} from "vue";
+import {onMounted, onUnmounted, ref} from "vue";
 
 const props = defineProps<{
   gametext: string
@@ -9,12 +9,6 @@ const props = defineProps<{
 const currentIndex = ref(0);
 const activeKeys = ref(new Set());
 const currentInput = ref('');
-const textCharacters = computed(() => {
-  return props.gametext.split('').map((char, index) => ({
-    char,
-    status: index < currentIndex.value ? 'correct' : (index === currentIndex.value ? 'current' : 'pending')
-  }));
-});
 const keyboardlayout = [
         [
           { main: '§', shift: '°', altGr: '' },
@@ -34,7 +28,7 @@ const keyboardlayout = [
         ],
         [
           { main: 'Tab', isSpecial: true, width: '60px' },
-          { main: 'q', shift: 'Q', altGr: '@' },
+          { main: 'q', shift: 'Q', altGr: '' },
           { main: 'w', shift: 'W', altGr: '' },
           { main: 'e', shift: 'E', altGr: '€' },
           { main: 'r', shift: 'R', altGr: '' },
@@ -59,8 +53,8 @@ const keyboardlayout = [
           { main: 'j', shift: 'J', altGr: '' },
           { main: 'k', shift: 'K', altGr: '' },
           { main: 'l', shift: 'L', altGr: '' },
-          { main: 'ö', shift: 'é', altGr: '{' },
-          { main: 'ä', shift: 'à', altGr: '}' },
+          { main: 'ö', shift: 'é', altGr: '' },
+          { main: 'ä', shift: 'à', altGr: '{' },
           { main: '$', shift: '£', altGr: '}' }
         ],
         [
@@ -94,8 +88,6 @@ const keyboardlayout = [
 const handleKeyDown = (e: KeyboardEvent) => {
   if (e.code === 'Space') e.preventDefault();
 
-  activeKeys.value.add(e.key);
-
   if (e.key.length === 1 || e.key === ' ') {
     processKey(e);
   } else {
@@ -105,7 +97,6 @@ const handleKeyDown = (e: KeyboardEvent) => {
 
 const handleKeyUp = (e: KeyboardEvent) => {
   activeKeys.value.delete(e.key);
-  activeKeys.value.clear();
 };
 
 const isKeyActive = (keyObj: any) => {
@@ -120,11 +111,10 @@ const processKey = (e: KeyboardEvent) => {
   const inputChar = e.key === 'Space' ? ' ' : e.key;
 
   if (inputChar === expectedChar) {
-    // Treffer!
+
     currentIndex.value++;
-    // Hier später Sound oder Partikel triggern
+
   } else {
-    // Fehler-Logik: Entweder blockieren oder rot markieren
     console.log("Falsche Taste!");
   }
 };
@@ -184,6 +174,9 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
+.text-track{
+  color: white;
+}
 .game-viewport {
   position: relative;
   width: 100%;
@@ -193,7 +186,7 @@ onUnmounted(() => {
   overflow: hidden;
   display: flex;
   align-items: center;
-  color: black;
+  color: #ffffff;
 }
 .key {
   display: inline-flex;
@@ -204,20 +197,19 @@ onUnmounted(() => {
   border: 1px solid #ccc;
   border-radius: 4px;
   background: #f9f9f9;
-  transition: all 0.05s ease; /* Schnelle Reaktion */
+  transition: all 0.05s ease;
   user-select: none;
 }
 
-/* Der visuelle Ausschlag */
+
 .key.is-active {
-  background-color: #42b883; /* Vue-Grün */
+  background-color: #42b883;
   color: white;
-  transform: translateY(3px); /* Taste "drückt" sich nach unten */
+  transform: translateY(3px);
   box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
   border-color: #33a06f;
 }
 
-/* Positionierung der 3 Spots innerhalb der Taste */
 .key span {
   position: absolute;
   font-size: 0.7rem;
