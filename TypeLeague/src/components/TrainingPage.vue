@@ -5,7 +5,7 @@ import Gameboard from "./gameboard.vue";
 
 <template>
 <gameboard
-  gametext="aaa aaa aaa aaa"
+  gametext="AAAA AAAA aaa aaa aaa aaa"
 ></gameboard>
 </template>
 
