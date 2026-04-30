@@ -2,10 +2,9 @@
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
-import bcrypt from 'bcryptjs';
 
 const router = useRouter();
-const { t } = useI18n();
+const { locale, t } = useI18n();
 
 const username = ref('');
 const password = ref('');
@@ -13,28 +12,33 @@ const error = ref('');
 
 const login = async () => {
   try {
-    if (!username.value || !password.value) {
-      error.value = t('tloginpage.errorEmpty');
-      return;
-    }
+    const response = await fetch('/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        username: username.value,
+        password: password.value
+      })
+    });
 
-    const storedUser = localStorage.getItem('user_db');
+    const data = await response.json();
 
-    if (storedUser) {
-      const user = JSON.parse(storedUser);
-      const isMatch = await bcrypt.compare(password.value, user.password);
+    if (response.ok) {
+      localStorage.setItem('user', JSON.stringify({
+        name: data.username,
+        lang: data.language
+      }));
 
-      if (user.username === username.value && isMatch) {
-        localStorage.setItem('user', JSON.stringify({ name: user.username }));
-        await router.push("/");
-      } else {
-        error.value = t('tloginpage.errorWrong');
-      }
+      if (data.language) {
+        locale.value = data.language;
+      } else locale.value = 'en';
+
+      await router.push("/");
     } else {
-      error.value = t('tloginpage.errorNotFound');
+      error.value = data.message || t('tloginpage.errorWrong');
     }
   } catch (e) {
-    error.value = "Login Error";
+    error.value = "Serverfehler";
   }
 };
 </script>

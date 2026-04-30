@@ -2,15 +2,13 @@
 import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
-import bcrypt from 'bcryptjs';
 
 const router = useRouter();
-const { t } = useI18n();
+const { locale, t } = useI18n();
 const username = ref('');
 const email = ref('');
 const password = ref('');
 const error = ref('');
-const saltrounds = 12;
 
 onMounted(async () => {
   const savedUser = localStorage.getItem('user');
@@ -21,30 +19,43 @@ onMounted(async () => {
 
 const register = async () => {
   try {
+    error.value = '';
+
     if (!username.value || !email.value || !password.value) {
       error.value = t('tregisterpage.errorEmpty');
       return;
     }
 
-    if (!email.value.includes('@') || !email.value.includes('.')) {
+    if (!email.value.includes('@')) {
       error.value = t('tregisterpage.errorEmail');
       return;
     }
 
-    const hashedPW = bcrypt.hashSync(password.value, saltrounds);
+    const langMap: Record<string, number> = { 'en': 1, 'de': 2, 'fr': 3 };
+    const selectedLangId = langMap[locale.value] || 1;
 
-    localStorage.setItem('user_db', JSON.stringify({
-      username: username.value,
-      email: email.value,
-      password: hashedPW
-    }));
+    const response = await fetch('/api/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        username: username.value,
+        password: password.value,
+        email: email.value,
+        languageId: selectedLangId
+      })
+    });
 
-    localStorage.setItem('user', JSON.stringify({ name: username.value }));
-    await router.push("/");
+    if (response.ok) {
+      localStorage.setItem('user', JSON.stringify({ name: username.value }));
+      await router.push("/");
+    } else {
+      const data = await response.json();
+      error.value = data.message || t('tregisterpage.errorFailed');
+    }
   } catch (e) {
-    error.value = t('tregisterpage.errorFailed');
+    error.value = "Serververbindung fehlgeschlagen";
   }
-}
+};
 </script>
 
 <template>
