@@ -5,7 +5,7 @@ const props = defineProps<{
   gametext: string
 }>();
 
-const emit = defineEmits(['finished', 'start']);
+const emit = defineEmits(['finished', 'start', 'progress']);
 
 interface KeyboardKey {
   main: string;
@@ -131,6 +131,9 @@ const processKey = (inputKey: string) => {
   const expected = props.gametext[currentIndex.value];
   if (inputKey === expected) {
     currentIndex.value++;
+
+    emit('progress', currentIndex.value);
+
     lastWrongIndex.value = -1;
     hasErrorAtPosition.value = false;
     if (currentIndex.value === props.gametext.length) finishGame();
@@ -288,7 +291,6 @@ onUnmounted(() => {
 .spot-top-left { position: absolute; top: 6px; left: 8px; font-size: 0.7rem; opacity: 0.6; }
 .spot-bottom-left { font-size: 1rem; font-weight: 800; }
 
-/* Sahur Overlay */
 .sahur-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
 .sahur-img { width: 500px; border-radius: 20px; border: 5px solid #BF5B04; animation: bounce 0.5s infinite; }
 .sahur-text { color: white; font-size: 3rem; margin-top: 20px; font-family: 'Nunito'; font-weight: 900; text-shadow: 3px 3px 0 #BF5B04; }
