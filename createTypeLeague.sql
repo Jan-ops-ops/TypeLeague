@@ -26,16 +26,28 @@ create table users
 username varchar(12),
 password text,
 email text,
+elo INTEGER DEFAULT 1000
 fk_languagesId INTEGER REFERENCES languages(languagesId)
 );
 create table plays
-(playId serial primary key,
+(
+playId serial primary key,
 points INTEGER,
 mistakes INTEGER,
 time int,
+adjusted_time INT, -- time + (mistakes * 3)
+wpm INT,
+elo_change INT,
 fk_userId INTEGER REFERENCES users(userId),
-fk_wordId INTEGER REFERENCES wordlist(wordId)
+fk_wordId INTEGER REFERENCES wordlist(wordId),
+fk_matchId INTEGER REFERENCES matches(matchId)
 );
+
+create table matches
+(
+    matchId serial primary key,
+	winner_id INTEGER REFERENCES users(userId),
+    match_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 
 create table user_level
 (
