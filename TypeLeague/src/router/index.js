@@ -7,6 +7,7 @@ import RoadmapPage from "../components/RoadmapPage.vue";
 import LeaguePage from "../components/LeaguePage.vue";
 import TrainingPage from "../components/TrainingPage.vue";
 import LeaderboardPage from "../components/LeaderboardPage.vue";
+import Roadmaptyping from "../components/Roadmaptyping.vue";
 
 
 const router = createRouter({
@@ -56,6 +57,11 @@ const router = createRouter({
             path: '/stats',
             name: 'stats',
             component: StatsPage
+        },
+        {
+            path: '/Roadmaptyping/:id',
+            name: 'Roadmaptyping',
+            component: Roadmaptyping
         }
     ]
 })
