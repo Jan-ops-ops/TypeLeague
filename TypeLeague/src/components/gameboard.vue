@@ -3,18 +3,34 @@ import { onMounted, onUnmounted, ref } from "vue";
 
 const props = defineProps<{
   gametext: string
-}>()
+}>();
+
+const emit = defineEmits(['finished', 'start']);
+
+interface KeyboardKey {
+  main: string;
+  shift?: string;
+  zone: string;
+  code: string;
+  isSpecial?: boolean;
+  width?: string;
+}
 
 const currentIndex = ref(0);
 const activeKeys = ref(new Set());
 const lastWrongIndex = ref(-1);
 const charWidth = 25;
 
+const totalMistakes = ref(0);
+const hasErrorAtPosition = ref(false);
+const isFinished = ref(false);
+const startTime = ref<number | null>(null);
+
 const secretBuffer = ref("");
 const showEasterEgg = ref(false);
 const secretPhrase = "blacked out like a phantom";
 
-const keyboardlayout = [
+const keyboardlayout: KeyboardKey[][] = [
   [
     { main: '§', shift: '°', zone: 'z1', code: 'Backquote' },
     { main: '1', shift: '+', zone: 'z1', code: 'Digit1' },
@@ -81,7 +97,7 @@ const keyboardlayout = [
     { main: 'Ctrl', isSpecial: true, zone: 'spec', code: 'ControlLeft' },
     { main: 'Win', isSpecial: true, zone: 'spec', code: 'MetaLeft' },
     { main: 'Alt', isSpecial: true, zone: 'spec', code: 'AltLeft' },
-    { main: 'Space', isSpecial: true, width: '300px', zone: 'daumen', code: 'Space' },
+    { main: 'Space', isSpecial: true, width: '320px', zone: 'daumen', code: 'Space' },
     { main: 'AltGr', isSpecial: true, zone: 'spec', code: 'AltRight' },
     { main: 'Win', isSpecial: true, zone: 'spec', code: 'MetaRight' },
     { main: 'Ctrl', isSpecial: true, zone: 'spec', code: 'ControlRight' }
@@ -89,41 +105,57 @@ const keyboardlayout = [
 ];
 
 const handleKeyDown = (e: KeyboardEvent) => {
+  if (isFinished.value) return;
   activeKeys.value.add(e.code);
   if (['Tab', 'Alt', ' '].includes(e.key)) e.preventDefault();
 
+  if (startTime.value === null && e.key.length === 1) {
+    startTime.value = Date.now();
+    emit('start');
+  }
+
   if (e.key.length === 1 || e.key === ' ') {
     processKey(e.key);
-
-    secretBuffer.value += e.key.toLowerCase();
-    if (secretBuffer.value.length > secretPhrase.length) {
-      secretBuffer.value = secretBuffer.value.slice(-secretPhrase.length);
-    }
-
+    secretBuffer.value = (secretBuffer.value + e.key.toLowerCase()).slice(-secretPhrase.length);
     if (secretBuffer.value === secretPhrase) {
       showEasterEgg.value = true;
-      setTimeout(() => {
-        showEasterEgg.value = false;
-        secretBuffer.value = "";
-      }, 7000);
+      setTimeout(() => { showEasterEgg.value = false; secretBuffer.value = ""; }, 7000);
     }
   } else if (e.key === 'Backspace') {
     currentIndex.value = Math.max(0, currentIndex.value - 1);
+    hasErrorAtPosition.value = false;
   }
 };
-
-const handleKeyUp = (e: KeyboardEvent) => activeKeys.value.delete(e.code);
 
 const processKey = (inputKey: string) => {
   const expected = props.gametext[currentIndex.value];
   if (inputKey === expected) {
     currentIndex.value++;
     lastWrongIndex.value = -1;
+    hasErrorAtPosition.value = false;
+    if (currentIndex.value === props.gametext.length) finishGame();
   } else {
+    if (!hasErrorAtPosition.value) {
+      totalMistakes.value++;
+      hasErrorAtPosition.value = true;
+    }
     lastWrongIndex.value = currentIndex.value;
     setTimeout(() => { lastWrongIndex.value = -1; }, 150);
   }
 };
+
+const finishGame = () => {
+  isFinished.value = true;
+  const timeTaken = (Date.now() - (startTime.value || Date.now())) / 1000;
+  emit('finished', {
+    realTime: timeTaken,
+    mistakes: totalMistakes.value,
+    adjustedTime: timeTaken + (totalMistakes.value * 3),
+    wpm: Math.round((props.gametext.length / 5) / (timeTaken / 60))
+  });
+};
+
+const handleKeyUp = (e: KeyboardEvent) => activeKeys.value.delete(e.code);
 
 onMounted(() => {
   window.addEventListener('keydown', handleKeyDown);
@@ -137,7 +169,6 @@ onUnmounted(() => {
 
 <template>
   <div class="typing-container">
-
     <div v-if="showEasterEgg" class="sahur-overlay">
       <div class="sahur-content">
         <img src="/secret.jpg" alt="SECRET" class="sahur-img">
@@ -162,59 +193,16 @@ onUnmounted(() => {
             :class="[key.zone, { 'is-active': activeKeys.has(key.code) }]"
             :style="{ width: key.width }"
         >
-          <span class="spot-top-left">{{ key.shift }}</span>
+          <span class="spot-top-left" v-if="key.shift">{{ key.shift }}</span>
           <span class="spot-bottom-left">{{ key.main }}</span>
         </div>
       </div>
     </div>
-
   </div>
 </template>
 
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&family=JetBrains+Mono:wght@500&display=swap');
-
-.sahur-overlay {
-  position: fixed;
-  top: 0; left: 0; width: 100vw; height: 100vh;
-  background: rgba(0,0,0,0.98);
-  z-index: 9999;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  animation: flash-bg 0.1s infinite alternate;
-}
-
-.sahur-img {
-  width: 600px;
-  max-width: 80%;
-  border: 8px solid #BF5B04;
-  border-radius: 20px;
-  box-shadow: 0 0 80px rgba(191, 91, 4, 0.8);
-  animation: bounce 0.5s infinite;
-}
-
-.sahur-text {
-  color: white;
-  font-family: 'Nunito', sans-serif;
-  font-weight: 900;
-  font-size: 3.5rem;
-  margin-top: 30px;
-  text-align: center;
-  text-shadow: 4px 4px 0px #BF5B04;
-  letter-spacing: 4px;
-}
-
-@keyframes flash-bg {
-  from { background: #000; }
-  to { background: #1a0f00; }
-}
-
-@keyframes bounce {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-}
 
 .typing-container {
   background: #05080D;
@@ -223,6 +211,7 @@ onUnmounted(() => {
   flex-direction: column;
   align-items: center;
   gap: 50px;
+  min-height: 100vh;
   font-family: 'Nunito', sans-serif;
 }
 
@@ -237,7 +226,6 @@ onUnmounted(() => {
   overflow: hidden;
   display: flex;
   align-items: center;
-  box-shadow: inset 0 4px 30px rgba(0,0,0,0.5);
 }
 
 .text-track {
@@ -248,7 +236,7 @@ onUnmounted(() => {
   font-size: 2.2rem;
 }
 
-.char { width: 25px; display: inline-block; text-align: center; color: #3d4f66; transition: 0.1s; }
+.char { width: 25px; display: inline-block; text-align: center; color: #3d4f66; }
 .char.correct { color: #BF5B04; opacity: 0.6; }
 .char.current { color: #ffffff; text-shadow: 0 0 10px white; }
 .char.wrong { color: #ff4d4d; animation: shake 0.1s infinite; }
@@ -262,7 +250,13 @@ onUnmounted(() => {
   border-radius: 18px;
   border: 1px solid #263640;
 }
-.keyboard-row { display: flex; gap: 6px; justify-content: center; }
+
+.keyboard-row {
+  display: flex;
+  flex-direction: row;
+  gap: 6px;
+  justify-content: center;
+}
 
 .key {
   position: relative;
@@ -276,27 +270,29 @@ onUnmounted(() => {
   transition: all 0.1s ease;
 }
 
-.z1, .z8 { background: rgba(212, 175, 55, 0.15); color: #d4af37; }
-.z2, .z7 { background: rgba(74, 103, 65, 0.2); color: #7cb36f; }
-.z3, .z6 { background: rgba(160, 82, 45, 0.25); color: #d2691e; }
-.z4, .z5 { background: rgba(70, 130, 180, 0.2); color: #6495ed; }
-.spec { background: #1c2730; color: #65768C; }
-.daumen { background: #263640; color: white; }
+/* 10-Finger System Farben */
+.z1, .z8 { background: rgba(52, 152, 219, 0.2); color: #3498db; }
+.z2, .z7 { background: rgba(155, 89, 182, 0.2); color: #9b59b6; }
+.z3, .z6 { background: rgba(231, 76, 60, 0.2); color: #e74c3c; }
+.z4, .z5 { background: rgba(230, 126, 34, 0.2); color: #e67e22; }
+.spec { background: #1c2730; color: #4a5d75; }
+.daumen { background: #263640; color: #65768C; }
 
 .key.is-active {
   background: #BF5B04 !important;
   color: white !important;
   transform: translateY(4px);
   box-shadow: 0 0 20px rgba(191, 91, 4, 0.8);
-  border-color: white;
 }
 
 .spot-top-left { position: absolute; top: 6px; left: 8px; font-size: 0.7rem; opacity: 0.6; }
 .spot-bottom-left { font-size: 1rem; font-weight: 800; }
 
-@keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-3px); }
-  75% { transform: translateX(3px); }
-}
+/* Sahur Overlay */
+.sahur-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+.sahur-img { width: 500px; border-radius: 20px; border: 5px solid #BF5B04; animation: bounce 0.5s infinite; }
+.sahur-text { color: white; font-size: 3rem; margin-top: 20px; font-family: 'Nunito'; font-weight: 900; text-shadow: 3px 3px 0 #BF5B04; }
+
+@keyframes bounce { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+@keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-3px); } 75% { transform: translateX(3px); } }
 </style>
