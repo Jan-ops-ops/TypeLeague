@@ -1,131 +1,127 @@
 <script setup lang="ts">
-import {computed, onMounted, onUnmounted, ref} from "vue";
+import { onMounted, onUnmounted, ref } from "vue";
 
 const props = defineProps<{
   gametext: string
-
 }>()
 
 const currentIndex = ref(0);
 const activeKeys = ref(new Set());
-const currentInput = ref('');
-const textCharacters = computed(() => {
-  return props.gametext.split('').map((char, index) => ({
-    char,
-    status: index < currentIndex.value ? 'correct' : (index === currentIndex.value ? 'current' : 'pending')
-  }));
-});
-const keyboardlayout = [
-        [
-          { main: '§', shift: '°', altGr: '' },
-          { main: '1', shift: '+', altGr: '¦' },
-          { main: '2', shift: '"', altGr: '@' },
-          { main: '3', shift: '*', altGr: '#' },
-          { main: '4', shift: 'ç', altGr: '¼' },
-          { main: '5', shift: '%', altGr: '½' },
-          { main: '6', shift: '&', altGr: '¬' },
-          { main: '7', shift: '/', altGr: '|' },
-          { main: '8', shift: '(', altGr: '¢' },
-          { main: '9', shift: ')', altGr: '┤' },
-          { main: '0', shift: '=', altGr: '' },
-          { main: "'", shift: '?', altGr: '´' },
-          { main: '^', shift: '`', altGr: '~' },
-          { main: 'Backspace', isSpecial: true, width: '100px' }
-        ],
-        [
-          { main: 'Tab', isSpecial: true, width: '60px' },
-          { main: 'q', shift: 'Q', altGr: '@' },
-          { main: 'w', shift: 'W', altGr: '' },
-          { main: 'e', shift: 'E', altGr: '€' },
-          { main: 'r', shift: 'R', altGr: '' },
-          { main: 't', shift: 'T', altGr: '' },
-          { main: 'z', shift: 'Z', altGr: '' },
-          { main: 'u', shift: 'U', altGr: '' },
-          { main: 'i', shift: 'I', altGr: '' },
-          { main: 'o', shift: 'O', altGr: '' },
-          { main: 'p', shift: 'P', altGr: '' },
-          { main: 'ü', shift: 'è', altGr: '[' },
-          { main: '¨', shift: '!', altGr: ']' },
-          { main: 'Enter', isSpecial: true, width: '80px' }
-        ],
-        [
-          { main: 'Caps', isSpecial: true, width: '80px' },
-          { main: 'a', shift: 'A', altGr: '' },
-          { main: 's', shift: 'S', altGr: '' },
-          { main: 'd', shift: 'D', altGr: '' },
-          { main: 'f', shift: 'F', altGr: '' },
-          { main: 'g', shift: 'G', altGr: '' },
-          { main: 'h', shift: 'H', altGr: '' },
-          { main: 'j', shift: 'J', altGr: '' },
-          { main: 'k', shift: 'K', altGr: '' },
-          { main: 'l', shift: 'L', altGr: '' },
-          { main: 'ö', shift: 'é', altGr: '{' },
-          { main: 'ä', shift: 'à', altGr: '}' },
-          { main: '$', shift: '£', altGr: '}' }
-        ],
-        [
-          { main: 'Shift', isSpecial: true, width: '100px' },
-          { main: '<', shift: '>', altGr: '\\' },
-          { main: 'y', shift: 'Y', altGr: '' },
-          { main: 'x', shift: 'X', altGr: '' },
-          { main: 'c', shift: 'C', altGr: '' },
-          { main: 'v', shift: 'V', altGr: '' },
-          { main: 'b', shift: 'B', altGr: '' },
-          { main: 'n', shift: 'N', altGr: '' },
-          { main: 'm', shift: 'M', altGr: 'µ' },
-          { main: ',', shift: ';', altGr: '' },
-          { main: '.', shift: ':', altGr: '' },
-          { main: '-', shift: '_', altGr: '' },
-          { main: 'Shift', isSpecial: true, width: '100px' }
-        ],
-        [
-          { main: 'Ctrl', isSpecial: true },
-          { main: 'Win', isSpecial: true },
-          { main: 'Alt', isSpecial: true },
-          { main: 'Space', isSpecial: true, width: '300px' },
-          { main: 'AltGr', isSpecial: true },
-          { main: 'Win', isSpecial: true },
-          { main: 'Menu', isSpecial: true },
-          { main: 'Ctrl', isSpecial: true }
-        ]
-    ]
+const lastWrongIndex = ref(-1);
+const charWidth = 25;
 
+const secretBuffer = ref("");
+const showEasterEgg = ref(false);
+const secretPhrase = "blacked out like a phantom";
+
+const keyboardlayout = [
+  [
+    { main: '§', shift: '°', zone: 'z1', code: 'Backquote' },
+    { main: '1', shift: '+', zone: 'z1', code: 'Digit1' },
+    { main: '2', shift: '"', zone: 'z2', code: 'Digit2' },
+    { main: '3', shift: '*', zone: 'z3', code: 'Digit3' },
+    { main: '4', shift: 'ç', zone: 'z4', code: 'Digit4' },
+    { main: '5', shift: '%', zone: 'z4', code: 'Digit5' },
+    { main: '6', shift: '&', zone: 'z5', code: 'Digit6' },
+    { main: '7', shift: '/', zone: 'z5', code: 'Digit7' },
+    { main: '8', shift: '(', zone: 'z6', code: 'Digit8' },
+    { main: '9', shift: ')', zone: 'z7', code: 'Digit9' },
+    { main: '0', shift: '=', zone: 'z8', code: 'Digit0' },
+    { main: "'", shift: '?', zone: 'z8', code: 'Quote' },
+    { main: '^', shift: '`', zone: 'z8', code: 'Equal' },
+    { main: '⌫', isSpecial: true, width: '100px', zone: 'spec', code: 'Backspace' }
+  ],
+  [
+    { main: 'Tab', isSpecial: true, width: '65px', zone: 'spec', code: 'Tab' },
+    { main: 'q', shift: 'Q', zone: 'z1', code: 'KeyQ' },
+    { main: 'w', shift: 'W', zone: 'z2', code: 'KeyW' },
+    { main: 'e', shift: 'E', zone: 'z3', code: 'KeyE' },
+    { main: 'r', shift: 'R', zone: 'z4', code: 'KeyR' },
+    { main: 't', shift: 'T', zone: 'z4', code: 'KeyT' },
+    { main: 'z', shift: 'Z', zone: 'z5', code: 'KeyZ' },
+    { main: 'u', shift: 'U', zone: 'z5', code: 'KeyU' },
+    { main: 'i', shift: 'I', zone: 'z6', code: 'KeyI' },
+    { main: 'o', shift: 'O', zone: 'z7', code: 'KeyO' },
+    { main: 'p', shift: 'P', zone: 'z8', code: 'KeyP' },
+    { main: 'ü', shift: 'è', zone: 'z8', code: 'BracketLeft' },
+    { main: '¨', shift: '!', zone: 'z8', code: 'BracketRight' },
+    { main: '⏎', isSpecial: true, width: '85px', zone: 'spec', code: 'Enter' }
+  ],
+  [
+    { main: 'Caps', isSpecial: true, width: '85px', zone: 'spec', code: 'CapsLock' },
+    { main: 'a', shift: 'A', zone: 'z1', code: 'KeyA' },
+    { main: 's', shift: 'S', zone: 'z2', code: 'KeyS' },
+    { main: 'd', shift: 'D', zone: 'z3', code: 'KeyD' },
+    { main: 'f', shift: 'F', zone: 'z4', code: 'KeyF' },
+    { main: 'g', shift: 'G', zone: 'z4', code: 'KeyG' },
+    { main: 'h', shift: 'H', zone: 'z5', code: 'KeyH' },
+    { main: 'j', shift: 'J', zone: 'z5', code: 'KeyJ' },
+    { main: 'k', shift: 'K', zone: 'z6', code: 'KeyK' },
+    { main: 'l', shift: 'L', zone: 'z7', code: 'KeyL' },
+    { main: 'ö', shift: 'é', zone: 'z8', code: 'Semicolon' },
+    { main: 'ä', shift: 'à', zone: 'z8', code: 'Quote' },
+    { main: '$', shift: '£', zone: 'z8', code: 'Backslash' }
+  ],
+  [
+    { main: 'Shift', isSpecial: true, width: '110px', zone: 'spec', code: 'ShiftLeft' },
+    { main: '<', shift: '>', zone: 'z1', code: 'IntlBackslash' },
+    { main: 'y', shift: 'Y', zone: 'z2', code: 'KeyY' },
+    { main: 'x', shift: 'X', zone: 'z3', code: 'KeyX' },
+    { main: 'c', shift: 'C', zone: 'z4', code: 'KeyC' },
+    { main: 'v', shift: 'V', zone: 'z4', code: 'KeyV' },
+    { main: 'b', shift: 'B', zone: 'z5', code: 'KeyB' },
+    { main: 'n', shift: 'N', zone: 'z5', code: 'KeyN' },
+    { main: 'm', shift: 'M', zone: 'z6', code: 'KeyM' },
+    { main: ',', shift: ';', zone: 'z7', code: 'Comma' },
+    { main: '.', shift: ':', zone: 'z8', code: 'Period' },
+    { main: '-', shift: '_', zone: 'z8', code: 'Slash' },
+    { main: 'Shift', isSpecial: true, width: '110px', zone: 'spec', code: 'ShiftRight' }
+  ],
+  [
+    { main: 'Ctrl', isSpecial: true, zone: 'spec', code: 'ControlLeft' },
+    { main: 'Win', isSpecial: true, zone: 'spec', code: 'MetaLeft' },
+    { main: 'Alt', isSpecial: true, zone: 'spec', code: 'AltLeft' },
+    { main: 'Space', isSpecial: true, width: '300px', zone: 'daumen', code: 'Space' },
+    { main: 'AltGr', isSpecial: true, zone: 'spec', code: 'AltRight' },
+    { main: 'Win', isSpecial: true, zone: 'spec', code: 'MetaRight' },
+    { main: 'Ctrl', isSpecial: true, zone: 'spec', code: 'ControlRight' }
+  ]
+];
 
 const handleKeyDown = (e: KeyboardEvent) => {
-  if (e.code === 'Space') e.preventDefault();
-
-  activeKeys.value.add(e.key);
+  activeKeys.value.add(e.code);
+  if (['Tab', 'Alt', ' '].includes(e.key)) e.preventDefault();
 
   if (e.key.length === 1 || e.key === ' ') {
-    processKey(e);
-  } else {
-    activeKeys.value.add(e.key);
+    processKey(e.key);
+
+    secretBuffer.value += e.key.toLowerCase();
+    if (secretBuffer.value.length > secretPhrase.length) {
+      secretBuffer.value = secretBuffer.value.slice(-secretPhrase.length);
+    }
+
+    if (secretBuffer.value === secretPhrase) {
+      showEasterEgg.value = true;
+      setTimeout(() => {
+        showEasterEgg.value = false;
+        secretBuffer.value = "";
+      }, 7000);
+    }
+  } else if (e.key === 'Backspace') {
+    currentIndex.value = Math.max(0, currentIndex.value - 1);
   }
 };
 
-const handleKeyUp = (e: KeyboardEvent) => {
-  activeKeys.value.delete(e.key);
-  activeKeys.value.clear();
-};
+const handleKeyUp = (e: KeyboardEvent) => activeKeys.value.delete(e.code);
 
-const isKeyActive = (keyObj: any) => {
-
-  return activeKeys.value.has(keyObj.main) ||
-      activeKeys.value.has(keyObj.shift) ||
-      activeKeys.value.has(keyObj.altGr);
-};
-
-const processKey = (e: KeyboardEvent) => {
-  const expectedChar = props.gametext[currentIndex.value];
-  const inputChar = e.key === 'Space' ? ' ' : e.key;
-
-  if (inputChar === expectedChar) {
-    // Treffer!
+const processKey = (inputKey: string) => {
+  const expected = props.gametext[currentIndex.value];
+  if (inputKey === expected) {
     currentIndex.value++;
-    // Hier später Sound oder Partikel triggern
+    lastWrongIndex.value = -1;
   } else {
-    // Fehler-Logik: Entweder blockieren oder rot markieren
-    console.log("Falsche Taste!");
+    lastWrongIndex.value = currentIndex.value;
+    setTimeout(() => { lastWrongIndex.value = -1; }, 150);
   }
 };
 
@@ -140,91 +136,167 @@ onUnmounted(() => {
 </script>
 
 <template>
-{{ currentInput }}
-  <div class="game-viewport">
-    <div class="cursor-line"></div>
+  <div class="typing-container">
 
-    <div
-        class="text-track"
-        :style="{ transform: `translateX(calc(50% - ${currentIndex * 25}px))` }"
-    >
-    <span
-        v-for="(char, index) in gametext"
-        :key="index"
-        :class="{
-        'char': true,
-        'correct': index < currentIndex,
-        'current': index === currentIndex
-      }"
-    >
-      {{ char === ' ' ? '&nbsp;' : char }}
-    </span>
-    </div>
-  </div>
-  <div class="keyboard">
-    <div v-for="(row, rowIndex) in keyboardlayout" :key="rowIndex" class="keyboard-row">
-
-      <div
-          v-for="(key, keyIndex) in row"
-          :key="keyIndex"
-          class="key"
-          :class="{
-      'special': key.isSpecial,
-      'is-active': isKeyActive(key)
-    }"
-          :style="{ width: key.width }"
-      >
-        <span class="spot-top-left">{{ key.shift }}</span>
-        <span class="spot-bottom-left">{{ key.main }}</span>
-        <span class="spot-bottom-right">{{ key.altGr }}</span>
+    <div v-if="showEasterEgg" class="sahur-overlay">
+      <div class="sahur-content">
+        <img src="/secret.jpg" alt="SECRET" class="sahur-img">
+        <h1 class="sahur-text">TUNG TUNG TUNG... SAHURRRRR!</h1>
       </div>
-
     </div>
+
+    <div class="game-viewport">
+      <div class="text-track" :style="{ transform: `translateX(calc(50% - ${currentIndex * charWidth}px - ${charWidth / 2}px))` }">
+        <span v-for="(char, index) in gametext" :key="index" class="char" :class="{ 'correct': index < currentIndex, 'current': index === currentIndex, 'wrong': index === lastWrongIndex }">
+          {{ char === ' ' ? '&nbsp;' : char }}
+        </span>
+      </div>
+    </div>
+
+    <div class="keyboard">
+      <div v-for="(row, rowIndex) in keyboardlayout" :key="rowIndex" class="keyboard-row">
+        <div
+            v-for="(key, keyIndex) in row"
+            :key="keyIndex"
+            class="key"
+            :class="[key.zone, { 'is-active': activeKeys.has(key.code) }]"
+            :style="{ width: key.width }"
+        >
+          <span class="spot-top-left">{{ key.shift }}</span>
+          <span class="spot-bottom-left">{{ key.main }}</span>
+        </div>
+      </div>
+    </div>
+
   </div>
 </template>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&family=JetBrains+Mono:wght@500&display=swap');
+
+.sahur-overlay {
+  position: fixed;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  background: rgba(0,0,0,0.98);
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  animation: flash-bg 0.1s infinite alternate;
+}
+
+.sahur-img {
+  width: 600px;
+  max-width: 80%;
+  border: 8px solid #BF5B04;
+  border-radius: 20px;
+  box-shadow: 0 0 80px rgba(191, 91, 4, 0.8);
+  animation: bounce 0.5s infinite;
+}
+
+.sahur-text {
+  color: white;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 900;
+  font-size: 3.5rem;
+  margin-top: 30px;
+  text-align: center;
+  text-shadow: 4px 4px 0px #BF5B04;
+  letter-spacing: 4px;
+}
+
+@keyframes flash-bg {
+  from { background: #000; }
+  to { background: #1a0f00; }
+}
+
+@keyframes bounce {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.typing-container {
+  background: #05080D;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 50px;
+  font-family: 'Nunito', sans-serif;
+}
+
 .game-viewport {
   position: relative;
   width: 100%;
-  max-width: 800px;
-  height: 100px;
-  margin: 0 auto;
+  max-width: 850px;
+  height: 120px;
+  background: #0B1117;
+  border-radius: 20px;
+  border: 1px solid #263640;
   overflow: hidden;
   display: flex;
   align-items: center;
-  color: black;
+  box-shadow: inset 0 4px 30px rgba(0,0,0,0.5);
 }
+
+.text-track {
+  display: flex;
+  transition: transform 0.12s cubic-bezier(0, 0.5, 0.5, 1);
+  white-space: nowrap;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 2.2rem;
+}
+
+.char { width: 25px; display: inline-block; text-align: center; color: #3d4f66; transition: 0.1s; }
+.char.correct { color: #BF5B04; opacity: 0.6; }
+.char.current { color: #ffffff; text-shadow: 0 0 10px white; }
+.char.wrong { color: #ff4d4d; animation: shake 0.1s infinite; }
+
+.keyboard {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: #0B1117;
+  padding: 25px;
+  border-radius: 18px;
+  border: 1px solid #263640;
+}
+.keyboard-row { display: flex; gap: 6px; justify-content: center; }
+
 .key {
-  display: inline-flex;
   position: relative;
-  width: 45px;
-  height: 45px;
-  margin: 2px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  background: #f9f9f9;
-  transition: all 0.05s ease; /* Schnelle Reaktion */
-  user-select: none;
+  width: 52px;
+  height: 52px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.05);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.1s ease;
 }
 
-/* Der visuelle Ausschlag */
+.z1, .z8 { background: rgba(212, 175, 55, 0.15); color: #d4af37; }
+.z2, .z7 { background: rgba(74, 103, 65, 0.2); color: #7cb36f; }
+.z3, .z6 { background: rgba(160, 82, 45, 0.25); color: #d2691e; }
+.z4, .z5 { background: rgba(70, 130, 180, 0.2); color: #6495ed; }
+.spec { background: #1c2730; color: #65768C; }
+.daumen { background: #263640; color: white; }
+
 .key.is-active {
-  background-color: #42b883; /* Vue-Grün */
-  color: white;
-  transform: translateY(3px); /* Taste "drückt" sich nach unten */
-  box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
-  border-color: #33a06f;
+  background: #BF5B04 !important;
+  color: white !important;
+  transform: translateY(4px);
+  box-shadow: 0 0 20px rgba(191, 91, 4, 0.8);
+  border-color: white;
 }
 
-/* Positionierung der 3 Spots innerhalb der Taste */
-.key span {
-  position: absolute;
-  font-size: 0.7rem;
-}
-.spot-top-left { top: 2px; left: 4px; }
-.spot-bottom-left { bottom: 2px; left: 4px; font-size: 0.9rem !important; font-weight: bold; }
-.spot-bottom-right { bottom: 2px; right: 4px; color: #666; }
+.spot-top-left { position: absolute; top: 6px; left: 8px; font-size: 0.7rem; opacity: 0.6; }
+.spot-bottom-left { font-size: 1rem; font-weight: 800; }
 
-.key.is-active .spot-bottom-right { color: #eee; }
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-3px); }
+  75% { transform: translateX(3px); }
+}
 </style>
