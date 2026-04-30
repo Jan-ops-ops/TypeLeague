@@ -5,7 +5,7 @@ const props = defineProps<{
   gametext: string
 }>();
 
-const emit = defineEmits(['finished', 'start']);
+const emit = defineEmits(['finished', 'start', 'progress']);
 
 interface KeyboardKey {
   main: string;
@@ -131,6 +131,9 @@ const processKey = (inputKey: string) => {
   const expected = props.gametext[currentIndex.value];
   if (inputKey === expected) {
     currentIndex.value++;
+
+    emit('progress', currentIndex.value);
+
     lastWrongIndex.value = -1;
     hasErrorAtPosition.value = false;
     if (currentIndex.value === props.gametext.length) finishGame();
