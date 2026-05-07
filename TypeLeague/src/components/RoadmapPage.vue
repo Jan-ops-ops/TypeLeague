@@ -4,8 +4,8 @@ import { useRouter } from 'vue-router';
 const router = useRouter();
 
 const levels = ref([
-  { id: 1, title: 'Home Row Basics', desc: 'Die mittlere Reihe.', status: 'current' },
-  { id: 2, title: 'Top Row Reach', desc: 'Obere Reihe.', status: 'locked' },
+  { id: 1, title: 'Home Row Basics', desc: 'Die mittlere Reihe.', status: 'done' },
+  { id: 2, title: 'Top Row Reach', desc: 'Obere Reihe.', status: 'current' },
   { id: 3, title: 'Bottom Row Jump', desc: 'Untere Reihe.', status: 'locked' },
   { id: 4, title: 'Shift & Caps', desc: 'Großschreibung.', status: 'locked' },
   { id: 5, title: '50 WPM Barrier', desc: 'Speed Training.', status: 'locked' },
@@ -23,7 +23,10 @@ function gotolevel(event: MouseEvent, level: any) {
     setTimeout(() => el.classList.remove('shake-it'), 400);
     return;
   }
-  router.push(`/Roadmaptyping/${level.id}`);
+  router.push({
+    path: '/Roadmaptyping',
+    state: { id: level.id }
+  });
 }
 </script>
 
@@ -58,7 +61,12 @@ function gotolevel(event: MouseEvent, level: any) {
 </template>
 
 <style scoped>
+
+@import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap');
+
 .roadmap-container {
+
+  font-family: 'Nunito', sans-serif;
   background-color: #0b0e14;
   min-height: 100vh;
   padding: 60px 20px;
@@ -68,8 +76,18 @@ function gotolevel(event: MouseEvent, level: any) {
   color: #f8fafc;
 }
 
-.title { color: #ff7e00; font-size: 2.5rem; margin-bottom: 5px; }
-.subtitle { color: #64748b; margin-bottom: 60px; }
+.title {
+  color: #ff7e00;
+  font-size: 2.5rem;
+  margin-bottom: 5px;
+  font-weight: 800;
+}
+
+.subtitle {
+  color: #64748b;
+  margin-bottom: 60px;
+  font-weight: 400;
+}
 
 .vertical-path {
   position: relative;
@@ -79,7 +97,6 @@ function gotolevel(event: MouseEvent, level: any) {
   flex-direction: column;
   gap: 30px;
 }
-
 
 .vertical-path::before {
   content: '';
@@ -100,7 +117,6 @@ function gotolevel(event: MouseEvent, level: any) {
   position: relative;
 }
 
-
 .level-step.left { justify-content: flex-start; }
 .level-step.right { justify-content: flex-end; }
 
@@ -117,15 +133,8 @@ function gotolevel(event: MouseEvent, level: any) {
   transition: all 0.3s ease;
 }
 
-
-.level-step.left .level-card::after { right: -40px; transform: translateX(50%); }
-.level-step.right .level-card::after { left: -40px; transform: translateX(-50%); }
-
-
 .level-step.current .level-card { border-color: #ff7e00; box-shadow: 0 0 15px rgba(255, 126, 0, 0.3); }
-.level-step.current .level-card::after { background: #ff7e00; }
 .level-step.locked { opacity: 0.6; filter: grayscale(0.5); cursor: not-allowed; }
-
 
 .level-card:not(.locked):hover {
   transform: scale(1.05);
@@ -141,13 +150,21 @@ function gotolevel(event: MouseEvent, level: any) {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: bold;
+  font-weight: 900; /* Extra fett für die Nummer */
   border: 1px solid #ff7e00;
 }
 
-.level-content h3 { font-size: 1rem; margin: 0; }
-.level-content p { font-size: 0.8rem; color: #94a3b8; margin: 2px 0 0; }
-
+.level-content h3 {
+  font-size: 1rem;
+  margin: 0;
+  font-weight: 700;
+}
+.level-content p {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  margin: 2px 0 0;
+  font-weight: 400;
+}
 
 @keyframes shake {
   0%, 100% { transform: translateX(0); }
