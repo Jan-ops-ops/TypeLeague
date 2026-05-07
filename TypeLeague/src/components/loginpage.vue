@@ -3,6 +3,7 @@ import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
 import bcrypt from 'bcryptjs';
+import { supabase } from "../supabase";
 
 const router = useRouter();
 const { t } = useI18n();
@@ -18,14 +19,13 @@ const login = async () => {
       return;
     }
 
-    const storedUser = localStorage.getItem('user_db');
+    const { data: user, error: dbError } = await supabase.from('users').select('*').eq('username', username.value).single();
 
-    if (storedUser) {
-      const user = JSON.parse(storedUser);
+    if (user && !dbError) {
       const isMatch = await bcrypt.compare(password.value, user.password);
 
-      if (user.username === username.value && isMatch) {
-        localStorage.setItem('user', JSON.stringify({ name: user.username }));
+      if (isMatch) {
+        localStorage.setItem('user', JSON.stringify({ name: user.username, elo: user.elo }));
         await router.push("/");
       } else {
         error.value = t('tloginpage.errorWrong');
