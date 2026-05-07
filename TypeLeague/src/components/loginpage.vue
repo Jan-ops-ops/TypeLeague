@@ -6,7 +6,7 @@ import bcrypt from 'bcryptjs';
 import { supabase } from "../supabase";
 
 const router = useRouter();
-const { t } = useI18n();
+const { locale, t } = useI18n();
 
 const username = ref('');
 const password = ref('');
@@ -19,19 +19,31 @@ const login = async () => {
       return;
     }
 
-    const { data: user, error: dbError } = await supabase.from('users').select('*').eq('username', username.value).single();
+    const { data: user, error: dbError } = await supabase
+        .from('users')
+        .select('*')
+        .eq('username', username.value)
+        .single();
 
-    if (user && !dbError) {
-      const isMatch = await bcrypt.compare(password.value, user.password);
-
-      if (isMatch) {
-        localStorage.setItem('user', JSON.stringify({ name: user.username, elo: user.elo }));
-        await router.push("/");
-      } else {
-        error.value = t('tloginpage.errorWrong');
-      }
-    } else {
+    if (dbError || !user) {
       error.value = t('tloginpage.errorNotFound');
+      return;
+    }
+
+    const isMatch = await bcrypt.compare(password.value, user.password);
+
+    if (isMatch) {
+      localStorage.setItem('user', JSON.stringify({ 
+        name: user.username, 
+        elo: user.elo 
+      }));
+      
+      if (user.fk_languagesid === 1) locale.value = 'de';
+      else if (user.fk_languagesid === 2) locale.value = 'en';
+
+      await router.push("/");
+    } else {
+      error.value = t('tloginpage.errorWrong');
     }
   } catch (e) {
     error.value = "Login Error";
@@ -84,8 +96,6 @@ const login = async () => {
 </template>
 
 <style scoped>
-
-
 .login-page {
   min-height: 100vh;
   display: flex;

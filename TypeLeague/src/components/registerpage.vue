@@ -6,7 +6,7 @@ import bcrypt from 'bcryptjs';
 import { supabase } from "../supabase";
 
 const router = useRouter();
-const { t } = useI18n();
+const { locale, t } = useI18n();
 const username = ref('');
 const email = ref('');
 const password = ref('');
@@ -22,29 +22,47 @@ onMounted(async () => {
 
 const register = async () => {
   try {
+    error.value = '';
+
     if (!username.value || !email.value || !password.value) {
       error.value = t('tregisterpage.errorEmpty');
       return;
     }
 
-    if (!email.value.includes('@') || !email.value.includes('.')) {
+    if (!email.value.includes('@')) {
       error.value = t('tregisterpage.errorEmail');
       return;
     }
 
+    const langMap: Record<string, number> = { 'en': 1, 'de': 2, 'fr': 3 };
+    const selectedLangId = langMap[locale.value] || 1;
+
     const hashedPW = bcrypt.hashSync(password.value, saltrounds);
 
-    const { error: dbError } = await supabase.from('users').insert({ username: username.value, email: email.value, password: hashedPW, elo: 1000 });
-    if (dbError) throw dbError;
+    const { error: dbError } = await supabase.from('users').insert({
+      username: username.value,
+      email: email.value,
+      password: hashedPW,
+      elo: 1000,
+      fk_languagesid: selectedLangId
+    });
+
+    if (dbError) {
+      if (dbError.code === '23505') {
+        error.value = "Username or Email already exists";
+      } else {
+        error.value = dbError.message;
+      }
+      return;
+    }
 
     localStorage.setItem('user', JSON.stringify({ name: username.value }));
     await router.push("/");
+
   } catch (e) {
     error.value = t('tregisterpage.errorFailed');
   }
-}
-
-
+};
 </script>
 
 <template>
@@ -77,7 +95,6 @@ const register = async () => {
 </template>
 
 <style scoped>
-
 .register-page {
   min-height: 100vh;
   display: flex;
