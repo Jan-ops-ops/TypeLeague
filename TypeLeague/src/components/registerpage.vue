@@ -3,6 +3,7 @@ import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
 import bcrypt from 'bcryptjs';
+import { supabase } from "../supabase";
 
 const router = useRouter();
 const { t } = useI18n();
@@ -33,11 +34,8 @@ const register = async () => {
 
     const hashedPW = bcrypt.hashSync(password.value, saltrounds);
 
-    localStorage.setItem('user_db', JSON.stringify({
-      username: username.value,
-      email: email.value,
-      password: hashedPW
-    }));
+    const { error: dbError } = await supabase.from('users').insert({ username: username.value, email: email.value, password: hashedPW, elo: 1000 });
+    if (dbError) throw dbError;
 
     localStorage.setItem('user', JSON.stringify({ name: username.value }));
     await router.push("/");
@@ -45,6 +43,8 @@ const register = async () => {
     error.value = t('tregisterpage.errorFailed');
   }
 }
+
+
 </script>
 
 <template>
