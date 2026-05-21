@@ -59,7 +59,7 @@ const router = createRouter({
             component: StatsPage
         },
         {
-            path: '/Roadmaptyping/:id',
+            path: '/Roadmaptyping',
             name: 'Roadmaptyping',
             component: Roadmaptyping
         }

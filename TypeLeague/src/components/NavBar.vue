@@ -32,7 +32,7 @@ const switchLanguage = (lang: string) => {
 const logout = () => {
   localStorage.removeItem('user');
   isLoggedIn.value = false;
-  router.push('/login');
+  router.push('/');
 };
 </script>
 
