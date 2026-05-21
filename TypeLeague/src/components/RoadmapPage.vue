@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import {onMounted, ref} from 'vue';
 import { useRouter } from 'vue-router';
 const router = useRouter();
 
@@ -28,6 +28,11 @@ function gotolevel(event: MouseEvent, level: any) {
     state: { id: level.id }
   });
 }
+
+onMounted(async () => {
+  if(!localStorage.getItem('user'))
+    await router.push('/login');
+})
 </script>
 
 <template>
