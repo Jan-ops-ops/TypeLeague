@@ -23,44 +23,36 @@ onMounted(async () => {
 const register = async () => {
   try {
     error.value = '';
-
     if (!username.value || !email.value || !password.value) {
       error.value = t('tregisterpage.errorEmpty');
       return;
     }
 
-    if (!email.value.includes('@')) {
-      error.value = t('tregisterpage.errorEmail');
-      return;
-    }
+    const hashedPW = bcrypt.hashSync(password.value, saltrounds);
 
+    // Kürzel zu ID für DB
     const langMap: Record<string, number> = { 'en': 1, 'de': 2, 'fr': 3 };
     const selectedLangId = langMap[locale.value] || 1;
-
-    const hashedPW = bcrypt.hashSync(password.value, saltrounds);
 
     const { error: dbError } = await supabase.from('users').insert({
       username: username.value,
       email: email.value,
       password: hashedPW,
       elo: 1000,
-      fk_languagesid: selectedLangId
+      fk_languagesid: selectedLangId // Speichert 1, 2 oder 3
     });
 
-    if (dbError) {
-      if (dbError.code === '23505') {
-        error.value = "Username or Email already exists";
-      } else {
-        error.value = dbError.message;
-      }
-      return;
-    }
+    if (dbError) throw dbError;
 
-    localStorage.setItem('user', JSON.stringify({ name: username.value }));
+    // LocalStorage: Wir speichern den Namen UND die Sprache
+    localStorage.setItem('user', JSON.stringify({
+      name: username.value,
+      lang: locale.value // Speichert 'en', 'de' oder 'fr'
+    }));
+
     await router.push("/");
-
-  } catch (e) {
-    error.value = t('tregisterpage.errorFailed');
+  } catch (e: any) {
+    error.value = e.message || t('tregisterpage.errorFailed');
   }
 };
 </script>
