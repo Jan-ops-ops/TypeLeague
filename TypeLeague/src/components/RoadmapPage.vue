@@ -1,20 +1,102 @@
 <script setup lang="ts">
-import {onMounted, ref} from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { supabase } from "../supabase";
+
 const router = useRouter();
 
-const levels = ref([
-  { id: 1, title: 'Home Row Basics', desc: 'Die mittlere Reihe.', status: 'done' },
-  { id: 2, title: 'Top Row Reach', desc: 'Obere Reihe.', status: 'current' },
-  { id: 3, title: 'Bottom Row Jump', desc: 'Untere Reihe.', status: 'locked' },
-  { id: 4, title: 'Shift & Caps', desc: 'Großschreibung.', status: 'locked' },
-  { id: 5, title: '50 WPM Barrier', desc: 'Speed Training.', status: 'locked' },
-  { id: 6, title: 'Numbers', desc: 'Zahlen & Symbole.', status: 'locked' },
-  { id: 7, title: 'Long Distance', desc: 'Ausdauer.', status: 'locked' },
-  { id: 8, title: 'Elite', desc: 'Präzision.', status: 'locked' },
-  { id: 9, title: 'League Ready', desc: 'Wettkampf.', status: 'locked' },
-  { id: 10, title: 'Grandmaster', desc: '100+ WPM.', status: 'locked' }
-]);
+const levels = ref<any[]>([]);
+const isLoading = ref<boolean>(true);
+const errorMessage = ref<string>('');
+
+const levelMeta: Record<number, { title: string; desc: string }> = {
+  1: { title: 'Home Row Basics', desc: 'Die mittlere Reihe.' },
+  2: { title: 'Top Row Reach', desc: 'Obere Reihe.' },
+  3: { title: 'Bottom Row Jump', desc: 'Untere Reihe.' },
+  4: { title: 'Shift & Caps', desc: 'Großschreibung.' },
+  5: { title: '50 WPM Barrier', desc: 'Speed Training.' },
+  6: { title: 'Numbers', desc: 'Zahlen & Symbole.' },
+  7: { title: 'Long Distance', desc: 'Ausdauer.' },
+  8: { title: 'Elite', desc: 'Präzision.' },
+  9: { title: 'League Ready', desc: 'Wettkampf.' },
+  10: { title: 'Grandmaster', desc: '100+ WPM.' }
+};
+
+const loadRoadmapData = async () => {
+  try {
+    isLoading.value = true;
+    errorMessage.value = '';
+
+    const { data: dbLevels } = await supabase
+      .from('levels')
+      .select('*')
+      .order('levelid', { ascending: true });
+
+    const levelRows = (dbLevels && dbLevels.length > 0)
+      ? dbLevels
+      : Object.keys(levelMeta).map(id => ({ levelid: Number(id) }));
+
+    const localUser = JSON.parse(localStorage.getItem('user') || '{}');
+    const completedLevelIds = new Set<number>();
+    let maxCompletedId = 0;
+
+    if (localUser.name) {
+      const { data: userData } = await supabase
+        .from('users')
+        .select('userid')
+        .eq('username', localUser.name)
+        .single();
+
+      if (userData?.userid) {
+        const { data: userProgress } = await supabase
+          .from('user_level')
+          .select('fk_levelid, completed')
+          .eq('fk_userid', userData.userid)
+          .eq('completed', true);
+
+        if (userProgress && userProgress.length > 0) {
+          userProgress.forEach((row: any) => {
+            completedLevelIds.add(row.fk_levelid);
+            if (row.fk_levelid > maxCompletedId) {
+              maxCompletedId = row.fk_levelid;
+            }
+          });
+        }
+      }
+    }
+
+    const currentLevelId = maxCompletedId + 1;
+
+    levels.value = levelRows.map((lvl: any) => {
+      const id = lvl.levelid;
+      let status = 'locked';
+
+      if (completedLevelIds.has(id)) {
+        status = 'done';
+      } else if (id === currentLevelId || (id === 1 && maxCompletedId === 0)) {
+        status = 'current';
+      }
+
+      const meta = levelMeta[id] || { title: `Level ${id}`, desc: `Erreiche die Ziellinie von Level ${id}.` };
+
+      return {
+        id,
+        title: meta.title,
+        desc: meta.desc,
+        status,
+      };
+    });
+
+  } catch (error: any) {
+    errorMessage.value = error.message || 'Unbekannter Datenbankfehler.';
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+onMounted(async () => {
+  await loadRoadmapData();
+});
 
 function gotolevel(event: MouseEvent, level: any) {
   if (level.status === 'locked') {
@@ -28,11 +110,6 @@ function gotolevel(event: MouseEvent, level: any) {
     state: { id: level.id }
   });
 }
-
-onMounted(async () => {
-  if(!localStorage.getItem('user'))
-    await router.push('/login');
-})
 </script>
 
 <template>
@@ -40,13 +117,16 @@ onMounted(async () => {
     <h2 class="title">Skill Roadmap</h2>
     <p class="subtitle">Meistere den Pfad zur Legende</p>
 
-    <div class="vertical-path">
+    <div v-if="isLoading" class="state-msg">Lade Roadmap-Daten aus Supabase...</div>
+    <div v-else-if="errorMessage" class="state-msg error">{{ errorMessage }}</div>
+
+    <div v-else class="vertical-path">
       <div
-          v-for="(level, index) in levels"
-          :key="level.id"
-          class="level-step"
-          :class="[index % 2 === 0 ? 'left' : 'right', level.status]"
-          @click="gotolevel($event, level)"
+        v-for="(level, index) in levels"
+        :key="level.id"
+        class="level-step"
+        :class="[index % 2 === 0 ? 'left' : 'right', level.status]"
+        @click="gotolevel($event, level)"
       >
         <div class="level-card">
           <div class="level-number">{{ level.id }}</div>
@@ -56,7 +136,7 @@ onMounted(async () => {
           </div>
           <div class="status-indicator">
             <span v-if="level.status === 'locked'">🔒</span>
-            <span v-else-if="level.status === 'completed'">✓</span>
+            <span v-else-if="level.status === 'done'">✓</span>
             <span v-else>●</span>
           </div>
         </div>
@@ -66,11 +146,9 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-
 @import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap');
 
 .roadmap-container {
-
   font-family: 'Nunito', sans-serif;
   background-color: #0b0e14;
   min-height: 100vh;
@@ -92,6 +170,20 @@ onMounted(async () => {
   color: #64748b;
   margin-bottom: 60px;
   font-weight: 400;
+}
+
+.state-msg {
+  color: #94a3b8;
+  font-size: 1.2rem;
+  margin-top: 40px;
+}
+
+.state-msg.error {
+  color: #ef4444;
+  border: 1px dashed #ef4444;
+  padding: 15px;
+  border-radius: 8px;
+  background: rgba(239, 68, 68, 0.05);
 }
 
 .vertical-path {
@@ -155,7 +247,7 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 900; /* Extra fett für die Nummer */
+  font-weight: 900;
   border: 1px solid #ff7e00;
 }
 
