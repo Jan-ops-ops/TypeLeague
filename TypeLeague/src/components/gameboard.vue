@@ -180,7 +180,7 @@ onUnmounted(() => {
     </div>
 
     <div class="game-viewport">
-      <div class="text-track" :style="{ transform: `translateX(calc(50% - ${currentIndex * charWidth}px - ${charWidth / 2}px))` }">
+      <div class="text-track" :style="{ transform: `translateX(calc(-${currentIndex * charWidth}px - ${charWidth / 2}px)) translateY(-50%)` }">
         <span v-for="(char, index) in gametext" :key="index" class="char" :class="{ 'correct': index < currentIndex, 'current': index === currentIndex, 'wrong': index === lastWrongIndex }">
           {{ char === ' ' ? '&nbsp;' : char }}
         </span>
@@ -232,6 +232,9 @@ onUnmounted(() => {
 }
 
 .text-track {
+  position: absolute;
+  left: 50%;
+  top: 50%;
   display: flex;
   transition: transform 0.12s cubic-bezier(0, 0.5, 0.5, 1);
   white-space: nowrap;
