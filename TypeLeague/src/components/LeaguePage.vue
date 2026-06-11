@@ -309,7 +309,6 @@ const startMatch = async (id: string) => {
     });
 };
 
-
 const clearGracePeriod = () => {
   if (gracePeriodTimer) { clearInterval(gracePeriodTimer); gracePeriodTimer = null; }
 };
