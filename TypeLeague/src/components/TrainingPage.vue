@@ -1,6 +1,9 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from "vue";
+import { ref, computed, onMounted, onUnmounted, watch } from "vue";
 import Gameboard from "./gameboard.vue";
+import { useI18n } from 'vue-i18n'; // <- i18n importiert
+
+const { t, locale } = useI18n(); // <- t und locale bereitgestellt
 
 const view = ref('selection');
 const selectedBotWpm = ref(0);
@@ -20,11 +23,13 @@ const texts = [
   "A phantom typed blacked out like a ghost in the dark night."
 ];
 
-const bots = [
-  { name: 'Easy Bot', wpm: 30 },
-  { name: 'Medium Bot', wpm: 60 },
-  { name: 'Hard Bot', wpm: 100 }
-];
+// Die Bots werden nun berechnet, damit die Namen (Easy, Medium, Hard)
+// sofort auf den Sprachwechsel reagieren
+const bots = computed(() => [
+  { name: t('training.bot_easy'), wpm: 30 },
+  { name: t('training.bot_medium'), wpm: 60 },
+  { name: t('training.bot_hard'), wpm: 100 }
+]);
 
 onMounted(() => { document.body.style.overflow = 'hidden'; });
 onUnmounted(() => { document.body.style.overflow = 'auto'; });
@@ -83,29 +88,29 @@ const winner = computed(() => {
 <template>
   <div class="training-wrapper">
     <div v-if="view === 'selection'" class="menu-card">
-      <h1>Bot Training</h1>
+      <h1>{{ t('training.title') }}</h1>
       <div class="bot-grid">
         <button v-for="bot in bots" :key="bot.name" @click="setupMatch(bot.wpm)" class="bot-card">
           <span>{{ bot.name }}</span>
-          <span class="bot-wpm">{{ bot.wpm }} WPM</span>
+          <span class="bot-wpm">{{ bot.wpm }} {{ t('training.wpm') }}</span>
         </button>
       </div>
       <div class="custom-bot">
-        <input type="number" v-model="customWpmInput" placeholder="WPM">
-        <button @click="setupMatch(customWpmInput)">Start</button>
+        <input type="number" v-model="customWpmInput" :placeholder="t('training.custom_placeholder')">
+        <button @click="setupMatch(customWpmInput)">{{ t('training.btn_start') }}</button>
       </div>
     </div>
 
     <div v-if="view === 'arena'" class="arena">
       <div class="race-track">
         <div class="lane">
-          <div class="lane-info">YOU</div>
+          <div class="lane-info">{{ t('training.lane_you') }}</div>
           <div class="bar-bg">
             <div class="bar-fill player-fill" :style="{ width: playerProgress + '%' }"></div>
           </div>
         </div>
         <div class="lane">
-          <div class="lane-info">BOT ({{ selectedBotWpm }} WPM)</div>
+          <div class="lane-info">{{ t('training.lane_bot') }} ({{ selectedBotWpm }} {{ t('training.wpm') }})</div>
           <div class="bar-bg">
             <div class="bar-fill bot-fill" :style="{ width: botProgress + '%' }"></div>
           </div>
@@ -122,14 +127,16 @@ const winner = computed(() => {
 
     <div v-if="view === 'results'" class="menu-card results">
       <h1 :class="winner === 'Player' ? 'win' : 'lose'">
-        {{ winner === 'Player' ? 'VICTORY' : 'DEFEAT' }}
+        {{ winner === 'Player' ? t('training.res_victory') : t('training.res_defeat') }}
       </h1>
       <div class="stats-summary">
-        <p>Your Time: <span>{{ playerStats ? playerStats.adjustedTime.toFixed(2) : 'DNF' }}s</span></p>
-        <p>Bot Time: <span>{{ botFinishedTime.toFixed(2) }}s</span></p>
-        <p class="penalty-info" v-if="playerStats">Mistakes: {{ playerStats.mistakes }} (+{{ playerStats.mistakes * 3 }}s Penalty)</p>
+        <p>{{ t('training.res_your_time') }}: <span>{{ playerStats ? playerStats.adjustedTime.toFixed(2) : 'DNF' }}s</span></p>
+        <p>{{ t('training.res_bot_time') }}: <span>{{ botFinishedTime.toFixed(2) }}s</span></p>
+        <p class="penalty-info" v-if="playerStats">
+          {{ t('training.res_mistakes') }}: {{ playerStats.mistakes }} (+{{ playerStats.mistakes * 3 }}s {{ t('training.res_penalty') }})
+        </p>
       </div>
-      <button class="mode-btn" @click="view = 'selection'">New Race</button>
+      <button class="mode-btn" @click="view = 'selection'">{{ t('training.btn_new_race') }}</button>
     </div>
   </div>
 </template>
