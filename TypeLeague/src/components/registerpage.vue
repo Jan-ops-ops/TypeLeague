@@ -23,14 +23,29 @@ onMounted(async () => {
 const register = async () => {
   try {
     error.value = '';
+
     if (!username.value || !email.value || !password.value) {
       error.value = t('tregisterpage.errorEmpty');
       return;
     }
 
-    const hashedPW = bcrypt.hashSync(password.value, saltrounds);
+    if (!/^[a-zA-Z0-9_]{3,16}$/.test(username.value)) {
+      error.value = 'Username must be 3–16 characters and only contain letters, numbers, or _.';
+      return;
+    }
 
-    // Kürzel zu ID für DB
+    const { data: existing } = await supabase
+      .from('users')
+      .select('username')
+      .ilike('username', username.value)
+      .maybeSingle();
+
+    if (existing) {
+      error.value = 'This username is already taken.';
+      return;
+    }
+
+    const hashedPW = bcrypt.hashSync(password.value, saltrounds);
     const langMap: Record<string, number> = { 'en': 1, 'de': 2, 'fr': 3 };
     const selectedLangId = langMap[locale.value] || 1;
 
@@ -39,15 +54,14 @@ const register = async () => {
       email: email.value,
       password: hashedPW,
       elo: 1000,
-      fk_languagesid: selectedLangId // Speichert 1, 2 oder 3
+      fk_languagesid: selectedLangId,
     });
 
     if (dbError) throw dbError;
 
-    // LocalStorage: Wir speichern den Namen UND die Sprache
     localStorage.setItem('user', JSON.stringify({
       name: username.value,
-      lang: locale.value // Speichert 'en', 'de' oder 'fr'
+      lang: locale.value,
     }));
 
     await router.push("/");
