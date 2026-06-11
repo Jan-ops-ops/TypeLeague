@@ -5,7 +5,7 @@ const props = defineProps<{
   gametext: string
 }>();
 
-const emit = defineEmits(['finished', 'start', 'progress', 'easteregg']);
+const emit = defineEmits(['finished', 'start', 'progress']);
 
 interface KeyboardKey {
   main: string;
@@ -25,10 +25,6 @@ const totalMistakes = ref(0);
 const hasErrorAtPosition = ref(false);
 const isFinished = ref(false);
 const startTime = ref<number | null>(null);
-
-const secretBuffer = ref("");
-const showEasterEgg = ref(false);
-const secretPhrase = "blacked out like a phantom";
 
 const keyboardlayout: KeyboardKey[][] = [
   [
@@ -116,12 +112,6 @@ const handleKeyDown = (e: KeyboardEvent) => {
 
   if (e.key.length === 1 || e.key === ' ') {
     processKey(e.key);
-    secretBuffer.value = (secretBuffer.value + e.key.toLowerCase()).slice(-secretPhrase.length);
-    if (secretBuffer.value === secretPhrase) {
-      showEasterEgg.value = true;
-      emit('easteregg');
-      setTimeout(() => { showEasterEgg.value = false; secretBuffer.value = ""; }, 7000);
-    }
   } else if (e.key === 'Backspace') {
     currentIndex.value = Math.max(0, currentIndex.value - 1);
     hasErrorAtPosition.value = false;
@@ -171,13 +161,6 @@ onUnmounted(() => {
 
 <template>
   <div class="typing-container">
-    <div v-if="showEasterEgg" class="sahur-overlay">
-      <div class="sahur-content">
-        <img src="/secret.jpg" alt="SECRET" class="sahur-img">
-        <h1 class="sahur-text">TUNG TUNG TUNG... SAHURRRRR!</h1>
-      </div>
-    </div>
-
     <div class="game-viewport">
       <div class="text-track" :style="{ transform: `translateX(calc(-${currentIndex * charWidth}px - ${charWidth / 2}px)) translateY(-50%)` }">
         <span v-for="(char, index) in gametext" :key="index" class="char" :class="{ 'correct': index < currentIndex, 'current': index === currentIndex, 'wrong': index === lastWrongIndex }">
@@ -292,10 +275,5 @@ onUnmounted(() => {
 .spot-top-left { position: absolute; top: 6px; left: 8px; font-size: 0.7rem; opacity: 0.6; }
 .spot-bottom-left { font-size: 1rem; font-weight: 800; }
 
-.sahur-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-.sahur-img { width: 500px; border-radius: 20px; border: 5px solid #BF5B04; animation: bounce 0.5s infinite; }
-.sahur-text { color: white; font-size: 3rem; margin-top: 20px; font-family: 'Nunito'; font-weight: 900; text-shadow: 3px 3px 0 #BF5B04; }
-
-@keyframes bounce { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
 @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-3px); } 75% { transform: translateX(3px); } }
 </style>
