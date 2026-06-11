@@ -44,6 +44,67 @@ const messages = {
             errorEmpty: "Fields cannot be empty",
             errorEmail: "Invalid email address",
             errorFailed: "Registration failed"
+        },
+        roadmap: {
+            title: "Skill Roadmap",
+            subtitle: "Master the path to becoming a legend",
+            loading: "Loading roadmap data from Supabase...",
+            error_db: "Unknown database error.",
+            level: "Level",
+            default_level_desc: "Reach the finish line of this level.",
+            level1_title: "Home Row Basics",
+            level1_desc: "The middle row.",
+            level2_title: "Top Row Reach",
+            level2_desc: "Upper row.",
+            level3_title: "Bottom Row Jump",
+            level3_desc: "Lower row.",
+            level4_title: "Shift & Caps",
+            level4_desc: "Capitalization.",
+            level5_title: "50 WPM Barrier",
+            level5_desc: "Speed training.",
+            level6_title: "Numbers",
+            level6_desc: "Numbers & symbols.",
+            level7_title: "Long Distance",
+            level7_desc: "Endurance.",
+            level8_title: "Elite",
+            level8_desc: "Precision.",
+            level9_title: "League Ready",
+            level9_desc: "Competition.",
+            level10_title: "Grandmaster",
+            level10_desc: "100+ WPM."
+        },
+        training: {
+            title: "Bot Training",
+            wpm: "WPM",
+            custom_placeholder: "WPM",
+            btn_start: "Start",
+            bot_easy: "Easy Bot",
+            bot_medium: "Medium Bot",
+            bot_hard: "Hard Bot",
+            lane_you: "YOU",
+            lane_bot: "BOT",
+            res_victory: "VICTORY",
+            res_defeat: "DEFEAT",
+            res_your_time: "Your Time",
+            res_bot_time: "Bot Time",
+            res_mistakes: "Mistakes",
+            res_penalty: "Penalty",
+            btn_new_race: "New Race"
+        },
+        leaderboard: {
+            title: "Leaderboard",
+            subtitle: "The best players in the world",
+            loading: "Loading...",
+            th_player: "Player",
+            th_league: "League",
+            th_elo: "ELO",
+            leagues: {
+                bronze: "Bronze",
+                silver: "Silver",
+                gold: "Gold",
+                platinum: "Platinum",
+                diamond: "Diamond"
+            }
         }
     },
     de: {
@@ -59,7 +120,7 @@ const messages = {
             logout: "Ausloggen",
             roadmap: "Roadmap",
             league: "Liga",
-            leaderboard: "Rangliste",
+            leaderboard: "Bestenliste",
             stats: "Statistiken",
             training: "Training"
         },
@@ -89,6 +150,67 @@ const messages = {
             errorEmpty: "Felder dürfen nicht leer sein",
             errorEmail: "Ungültige E-Mail Adresse",
             errorFailed: "Fehler bei der Registrierung"
+        },
+        roadmap: {
+            title: "Skill Roadmap",
+            subtitle: "Meistere den Pfad zur Legende",
+            loading: "Lade Roadmap-Daten aus Supabase...",
+            error_db: "Unbekannter Datenbankfehler.",
+            level: "Level",
+            default_level_desc: "Erreiche die Ziellinie dieses Levels.",
+            level1_title: "Basisreihe",
+            level1_desc: "Die mittlere Reihe.",
+            level2_title: "Obere Tasten dücken",
+            level2_desc: "Obere Reihe.",
+            level3_title: "Untere Tasten betätigen",
+            level3_desc: "Untere Reihe.",
+            level4_title: "Shift & Caps",
+            level4_desc: "Grossschreibung.",
+            level5_title: "50 WPM Grenze",
+            level5_desc: "Speed Training.",
+            level6_title: "Zahlen",
+            level6_desc: "Zahlen & Symbole.",
+            level7_title: "Lange Texte",
+            level7_desc: "Ausdauer.",
+            level8_title: "Elite",
+            level8_desc: "Präzision.",
+            level9_title: "League Bereit",
+            level9_desc: "Wettkampf.",
+            level10_title: "Grossmeister",
+            level10_desc: "100+ WPM."
+        },
+        training: {
+            title: "Bot-Training",
+            wpm: "WPM",
+            custom_placeholder: "WPM",
+            btn_start: "Start",
+            bot_easy: "Leichter Bot",
+            bot_medium: "Mittlerer Bot",
+            bot_hard: "Schwerer Bot",
+            lane_you: "DU",
+            lane_bot: "BOT",
+            res_victory: "SIEG",
+            res_defeat: "NIEDERLAGE",
+            res_your_time: "Deine Zeit",
+            res_bot_time: "Bot-Zeit",
+            res_mistakes: "Fehler",
+            res_penalty: "Strafe",
+            btn_new_race: "Neues Rennen"
+        },
+        leaderboard: {
+            title: "Bestenliste",
+            subtitle: "Die besten Spieler der Welt",
+            loading: "Laden...",
+            th_player: "Spieler",
+            th_league: "Liga",
+            th_elo: "ELO",
+            leagues: {
+                bronze: "Bronze",
+                silver: "Silber",
+                gold: "Gold",
+                platinum: "Platin",
+                diamond: "Diamant"
+            }
         }
     },
     fr: {
@@ -134,13 +256,77 @@ const messages = {
             errorEmpty: "Les champs ne peuvent pas être vides",
             errorEmail: "Adresse e-mail invalide",
             errorFailed: "Échec de l'inscription"
+        },
+        roadmap: {
+            title: "Feuille de route des compétences",
+            subtitle: "Maîtrise le chemin pour devenir une légende",
+            loading: "Chargement des données depuis Supabase...",
+            error_db: "Erreur de base de données inconnue.",
+            level: "Niveau",
+            default_level_desc: "Atteins la ligne d'arrivée de ce niveau.",
+            level1_title: "Bases de la rangée du milieu",
+            level1_desc: "La rangée centrale.",
+            level2_title: "Accès à la rangée du haut",
+            level2_desc: "Rangée supérieure.",
+            level3_title: "Saut vers la rangée du bas",
+            level3_desc: "Rangée inférieure.",
+            level4_title: "Majuscules & Verr. Maj.",
+            level4_desc: "Utilisation des majuscules.",
+            level5_title: "Barrière des 50 MPM",
+            level5_desc: "Entraînement de vitesse.",
+            level6_title: "Chiffres",
+            level6_desc: "Chiffres & symboles.",
+            level7_title: "Longue distance",
+            level7_desc: "Endurance.",
+            level8_title: "Élite",
+            level8_desc: "Précision.",
+            level9_title: "Prêt pour la Ligue",
+            level9_desc: "Compétition.",
+            level10_title: "Grand maître",
+            level10_desc: "100+ MPM."
+        },
+        training: {
+            title: "Entraînement Bot",
+            wpm: "MPM",
+            custom_placeholder: "MPM",
+            btn_start: "Démarrer",
+            bot_easy: "Bot Facile",
+            bot_medium: "Bot Moyen",
+            bot_hard: "Bot Difficile",
+            lane_you: "TOI",
+            lane_bot: "BOT",
+            res_victory: "VICTOIRE",
+            res_defeat: "DÉFAITE",
+            res_your_time: "Ton temps",
+            res_bot_time: "Temps du Bot",
+            res_mistakes: "Erreurs",
+            res_penalty: "de pénalité",
+            btn_new_race: "Nouvelle course"
+        },
+        leaderboard: {
+            title: "Classement",
+            subtitle: "Les meilleurs joueurs du monde",
+            loading: "Chargement...",
+            th_player: "Joueur",
+            th_league: "Ligue",
+            th_elo: "ELO",
+            leagues: {
+                bronze: "Bronze",
+                silver: "Argent",
+                gold: "Or",
+                platinum: "Platine",
+                diamond: "Diamant"
+            }
+
         }
     }
 };
 
+const savedLanguage = localStorage.getItem('user_lang') || 'en';
+
 export const i18n = createI18n({
     legacy: false,
-    locale: 'en',
+    locale: savedLanguage,
     fallbackLocale: 'en',
     globalInjection: true,
     messages

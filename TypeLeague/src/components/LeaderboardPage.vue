@@ -1,24 +1,27 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { supabase } from '../supabase';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 
 interface Player {
   rank: number;
   username: string;
   elo: number;
-  league: string;
+  leagueKey: string;
 }
 
 const players = ref<Player[]>([]);
 const isLoading = ref(true);
 const currentUsername = ref('');
 
-const getLeague = (elo: number): string => {
-  if (elo < 1200) return 'Bronze';
-  if (elo < 1400) return 'Silver';
-  if (elo < 1600) return 'Gold';
-  if (elo < 1800) return 'Platinum';
-  return 'Diamond';
+const getLeagueKey = (elo: number): string => {
+  if (elo < 1200) return 'bronze';
+  if (elo < 1400) return 'silver';
+  if (elo < 1600) return 'gold';
+  if (elo < 1800) return 'platinum';
+  return 'diamond';
 };
 
 onMounted(async () => {
@@ -26,17 +29,17 @@ onMounted(async () => {
   currentUsername.value = localUser.name || '';
 
   const { data } = await supabase
-    .from('users')
-    .select('username, elo')
-    .order('elo', { ascending: false })
-    .limit(100);
+      .from('users')
+      .select('username, elo')
+      .order('elo', { ascending: false })
+      .limit(100);
 
   if (data) {
     players.value = data.map((p, i) => ({
       rank: i + 1,
       username: p.username,
       elo: p.elo,
-      league: getLeague(p.elo),
+      leagueKey: getLeagueKey(p.elo),
     }));
   }
 
@@ -46,29 +49,31 @@ onMounted(async () => {
 
 <template>
   <div class="page">
-    <h1 class="title">Leaderboard</h1>
-    <p class="subtitle">Die besten Spieler der Welt</p>
+    <h1 class="title">{{ t('leaderboard.title') }}</h1>
+    <p class="subtitle">{{ t('leaderboard.subtitle') }}</p>
 
-    <div v-if="isLoading" class="loading">Laden...</div>
+    <div v-if="isLoading" class="loading">{{ t('leaderboard.loading') }}</div>
 
     <div v-else class="board">
 
       <div class="table">
         <div class="table-header">
           <span class="col-rank">#</span>
-          <span class="col-name">Spieler</span>
-          <span class="col-league">Liga</span>
-          <span class="col-elo">ELO</span>
+          <span class="col-name">{{ t('leaderboard.th_player') }}</span>
+          <span class="col-league">{{ t('leaderboard.th_league') }}</span>
+          <span class="col-elo">{{ t('leaderboard.th_elo') }}</span>
         </div>
         <div
-          v-for="player in players"
-          :key="player.rank"
-          class="table-row"
-          :class="{ 'is-me': player.username === currentUsername }"
+            v-for="player in players"
+            :key="player.rank"
+            class="table-row"
+            :class="{ 'is-me': player.username === currentUsername }"
         >
           <span class="col-rank">{{ player.rank }}</span>
           <span class="col-name">{{ player.username }}</span>
-          <span class="col-league" :class="'league-' + player.league.toLowerCase()">{{ player.league }}</span>
+          <span class="col-league" :class="'league-' + player.leagueKey">
+            {{ t(`leaderboard.leagues.${player.leagueKey}`) }}
+          </span>
           <span class="col-elo">{{ player.elo }}</span>
         </div>
       </div>
