@@ -7,7 +7,6 @@ const { locale, t } = useI18n();
 const router = useRouter();
 const route = useRoute();
 
-const currentLanguage = ref(locale.value);
 const dropdownOpen = ref(false);
 const isLoggedIn = ref(false);
 
@@ -24,7 +23,6 @@ const toggleDropdown = () => {
 };
 
 const switchLanguage = (lang: string) => {
-  currentLanguage.value = lang;
   locale.value = lang;
   dropdownOpen.value = false;
 };
@@ -60,7 +58,7 @@ const logout = () => {
 
       <div class="language-wrapper" @mouseleave="dropdownOpen=false">
         <button class="lang-btn" @click="toggleDropdown">
-          {{ currentLanguage.toUpperCase() }}
+          {{ locale.toUpperCase() }}
           <span class="arrow" :class="{ open: dropdownOpen }">▼</span>
         </button>
 
