@@ -1,26 +1,28 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { supabase } from "../supabase";
+import { useI18n } from 'vue-i18n';
 
 const router = useRouter();
+const { t, locale } = useI18n();
 
 const levels = ref<any[]>([]);
 const isLoading = ref<boolean>(true);
 const errorMessage = ref<string>('');
 
-const levelMeta: Record<number, { title: string; desc: string }> = {
-  1: { title: 'Home Row Basics', desc: 'Die mittlere Reihe.' },
-  2: { title: 'Top Row Reach', desc: 'Obere Reihe.' },
-  3: { title: 'Bottom Row Jump', desc: 'Untere Reihe.' },
-  4: { title: 'Shift & Caps', desc: 'Großschreibung.' },
-  5: { title: '50 WPM Barrier', desc: 'Speed Training.' },
-  6: { title: 'Numbers', desc: 'Zahlen & Symbole.' },
-  7: { title: 'Long Distance', desc: 'Ausdauer.' },
-  8: { title: 'Elite', desc: 'Präzision.' },
-  9: { title: 'League Ready', desc: 'Wettkampf.' },
-  10: { title: 'Grandmaster', desc: '100+ WPM.' }
-};
+const levelMeta = computed<Record<number, { title: string; desc: string }>>(() => ({
+  1: { title: t('roadmap.level1_title'), desc: t('roadmap.level1_desc') },
+  2: { title: t('roadmap.level2_title'), desc: t('roadmap.level2_desc') },
+  3: { title: t('roadmap.level3_title'), desc: t('roadmap.level3_desc') },
+  4: { title: t('roadmap.level4_title'), desc: t('roadmap.level4_desc') },
+  5: { title: t('roadmap.level5_title'), desc: t('roadmap.level5_desc') },
+  6: { title: t('roadmap.level6_title'), desc: t('roadmap.level6_desc') },
+  7: { title: t('roadmap.level7_title'), desc: t('roadmap.level7_desc') },
+  8: { title: t('roadmap.level8_title'), desc: t('roadmap.level8_desc') },
+  9: { title: t('roadmap.level9_title'), desc: t('roadmap.level9_desc') },
+  10: { title: t('roadmap.level10_title'), desc: t('roadmap.level10_desc') }
+}));
 
 const loadRoadmapData = async () => {
   try {
@@ -28,13 +30,13 @@ const loadRoadmapData = async () => {
     errorMessage.value = '';
 
     const { data: dbLevels } = await supabase
-      .from('levels')
-      .select('*')
-      .order('levelid', { ascending: true });
+        .from('levels')
+        .select('*')
+        .order('levelid', { ascending: true });
 
     const levelRows = (dbLevels && dbLevels.length > 0)
-      ? dbLevels
-      : Object.keys(levelMeta).map(id => ({ levelid: Number(id) }));
+        ? dbLevels
+        : Object.keys(levelMeta.value).map(id => ({ levelid: Number(id) }));
 
     const localUser = JSON.parse(localStorage.getItem('user') || '{}');
     const completedLevelIds = new Set<number>();
@@ -42,17 +44,17 @@ const loadRoadmapData = async () => {
 
     if (localUser.name) {
       const { data: userData } = await supabase
-        .from('users')
-        .select('userid')
-        .eq('username', localUser.name)
-        .single();
+          .from('users')
+          .select('userid')
+          .eq('username', localUser.name)
+          .single();
 
       if (userData?.userid) {
         const { data: userProgress } = await supabase
-          .from('user_level')
-          .select('fk_levelid, completed')
-          .eq('fk_userid', userData.userid)
-          .eq('completed', true);
+            .from('user_level')
+            .select('fk_levelid, completed')
+            .eq('fk_userid', userData.userid)
+            .eq('completed', true);
 
         if (userProgress && userProgress.length > 0) {
           userProgress.forEach((row: any) => {
@@ -77,7 +79,10 @@ const loadRoadmapData = async () => {
         status = 'current';
       }
 
-      const meta = levelMeta[id] || { title: `Level ${id}`, desc: `Erreiche die Ziellinie von Level ${id}.` };
+      const meta = levelMeta.value[id] || {
+        title: `${t('roadmap.level')} ${id}`,
+        desc: t('roadmap.default_level_desc')
+      };
 
       return {
         id,
@@ -88,11 +93,15 @@ const loadRoadmapData = async () => {
     });
 
   } catch (error: any) {
-    errorMessage.value = error.message || 'Unbekannter Datenbankfehler.';
+    errorMessage.value = error.message || t('roadmap.error_db');
   } finally {
     isLoading.value = false;
   }
 };
+
+watch(locale, async () => {
+  await loadRoadmapData();
+});
 
 onMounted(async () => {
   await loadRoadmapData();
@@ -114,19 +123,19 @@ function gotolevel(event: MouseEvent, level: any) {
 
 <template>
   <div class="roadmap-container">
-    <h2 class="title">Skill Roadmap</h2>
-    <p class="subtitle">Meistere den Pfad zur Legende</p>
+    <h2 class="title">{{ t('roadmap.title') }}</h2>
+    <p class="subtitle">{{ t('roadmap.subtitle') }}</p>
 
-    <div v-if="isLoading" class="state-msg">Lade Roadmap-Daten aus Supabase...</div>
+    <div v-if="isLoading" class="state-msg">{{ t('roadmap.loading') }}</div>
     <div v-else-if="errorMessage" class="state-msg error">{{ errorMessage }}</div>
 
     <div v-else class="vertical-path">
       <div
-        v-for="(level, index) in levels"
-        :key="level.id"
-        class="level-step"
-        :class="[index % 2 === 0 ? 'left' : 'right', level.status]"
-        @click="gotolevel($event, level)"
+          v-for="(level, index) in levels"
+          :key="level.id"
+          class="level-step"
+          :class="[index % 2 === 0 ? 'left' : 'right', level.status]"
+          @click="gotolevel($event, level)"
       >
         <div class="level-card">
           <div class="level-number">{{ level.id }}</div>
@@ -223,6 +232,7 @@ function gotolevel(event: MouseEvent, level: any) {
   border-radius: 12px;
   padding: 15px 20px;
   width: 240px;
+  min-height: 80px;
   display: flex;
   align-items: center;
   gap: 15px;
@@ -249,6 +259,11 @@ function gotolevel(event: MouseEvent, level: any) {
   justify-content: center;
   font-weight: 900;
   border: 1px solid #ff7e00;
+  flex-shrink: 0;
+}
+
+.level-content {
+  flex-grow: 1;
 }
 
 .level-content h3 {
@@ -261,6 +276,10 @@ function gotolevel(event: MouseEvent, level: any) {
   color: #94a3b8;
   margin: 2px 0 0;
   font-weight: 400;
+}
+
+.status-indicator {
+  flex-shrink: 0;
 }
 
 @keyframes shake {

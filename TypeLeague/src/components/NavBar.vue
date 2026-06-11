@@ -14,7 +14,16 @@ const checkAuth = () => {
   isLoggedIn.value = !!localStorage.getItem('user');
 };
 
-onMounted(checkAuth);
+onMounted(() => {
+  checkAuth();
+
+  // Schaut beim Laden der App, ob bereits eine Sprache gespeichert wurde
+  const savedLang = localStorage.getItem('user_lang');
+  if (savedLang) {
+    currentLanguage.value = savedLang;
+    locale.value = savedLang;
+  }
+});
 
 watch(() => route.path, checkAuth);
 
@@ -24,6 +33,10 @@ const toggleDropdown = () => {
 
 const switchLanguage = (lang: string) => {
   locale.value = lang;
+
+  // WICHTIG: Speichert die Sprache im Browser, damit sie beim Refresh bleibt!
+  localStorage.setItem('user_lang', lang);
+
   dropdownOpen.value = false;
 };
 

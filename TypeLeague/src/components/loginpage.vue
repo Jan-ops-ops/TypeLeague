@@ -33,15 +33,13 @@ const login = async () => {
     const isMatch = await bcrypt.compare(password.value, user.password);
 
     if (isMatch) {
-      // ID zu Kürzel umwandeln
       const idToLang: Record<number, string> = { 1: 'en', 2: 'de', 3: 'fr' };
       const langCode = idToLang[user.fk_languagesid] || 'en';
 
-      // Sprache in der App sofort setzen
       locale.value = langCode;
 
-      // In LocalStorage speichern, damit es beim Refresh bleibt
       localStorage.setItem('user', JSON.stringify({
+        id: user.userid,
         name: user.username,
         elo: user.elo,
         lang: langCode
