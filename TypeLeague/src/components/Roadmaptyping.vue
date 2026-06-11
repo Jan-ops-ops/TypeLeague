@@ -76,7 +76,6 @@ async function onLevelFinished() {
       v-if="isReady && gametext"
       :gametext="gametext"
       @finished="onLevelFinished"
-      @easteregg="onLevelFinished"
     />
   </div>
 </template>
