@@ -9,7 +9,6 @@ import TrainingPage from "../components/TrainingPage.vue";
 import LeaderboardPage from "../components/LeaderboardPage.vue";
 import Roadmaptyping from "../components/Roadmaptyping.vue";
 
-
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
     routes: [
@@ -29,19 +28,27 @@ const router = createRouter({
             component: Registerpage
         },
         {
-            path: '/stats',
-            name: 'stats',
-            component: StatsPage
+            path: '/leaderboard',
+            name: 'leaderboard',
+            component: LeaderboardPage
         },
         {
             path: '/roadmap',
             name: 'roadmap',
-            component: RoadmapPage
+            component: RoadmapPage,
+            meta: { requiresAuth: true }
+        },
+        {
+            path: '/Roadmaptyping',
+            name: 'Roadmaptyping',
+            component: Roadmaptyping,
+            meta: { requiresAuth: true }
         },
         {
             path: '/league',
             name: 'league',
-            component: LeaguePage
+            component: LeaguePage,
+            meta: { requiresAuth: true }
         },
         {
             path: '/training',
@@ -49,22 +56,20 @@ const router = createRouter({
             component: TrainingPage
         },
         {
-            path: '/leaderboard',
-            name: 'leaderboard',
-            component: LeaderboardPage
-        },
-        {
             path: '/stats',
             name: 'stats',
-            component: StatsPage
-        },
-        {
-            path: '/Roadmaptyping',
-            name: 'Roadmaptyping',
-            component: Roadmaptyping
+            component: StatsPage,
+            meta: { requiresAuth: true }
         }
     ]
 })
 
+router.beforeEach((to, from, next) => {
+    if (to.meta.requiresAuth && !localStorage.getItem('user')) {
+        next('/login')
+    } else {
+        next()
+    }
+})
 
 export default router
