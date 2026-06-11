@@ -43,7 +43,9 @@ const messages = {
             registerbutton: "Register",
             errorEmpty: "Fields cannot be empty",
             errorEmail: "Invalid email address",
-            errorFailed: "Registration failed"
+            errorFailed: "Registration failed",
+            errorUsername: "Username must be 3–16 characters (letters, numbers or _).",
+            errorTaken: "This username is already taken."
         },
         roadmap: {
             title: "Skill Roadmap",
@@ -105,6 +107,50 @@ const messages = {
                 platinum: "Platinum",
                 diamond: "Diamond"
             }
+        },
+        stats: {
+            live_rating: "Live Rating",
+            games: "Games",
+            best_wpm: "Best WPM",
+            avg_wpm: "Avg WPM",
+            mistakes: "Mistakes",
+            rating: "Rating",
+            chart_title: "Rating History",
+            history_title: "Match History",
+            th_player: "Player",
+            th_result: "Result",
+            th_wpm: "WPM",
+            th_mistakes: "Mistakes",
+            th_time: "Time",
+            th_elo: "ELO",
+            win: "Win",
+            loss: "Loss",
+            empty: "No matches yet."
+        },
+        league: {
+            league_word: "LEAGUE",
+            recent_games: "RECENT GAMES",
+            no_games: "No games yet",
+            title: "League Mode",
+            find_match: "Find a Match",
+            find_match_desc: "Get matched against a player at your level.",
+            btn_ready: "READY!",
+            btn_searching: "SEARCHING...",
+            footer_desc: "Real-time matches against real players",
+            you: "YOU",
+            connecting: "Connecting...",
+            waiting_players: "Waiting for both players",
+            get_ready: "GET READY",
+            opponent_typing: "OPPONENT STILL TYPING — WAITING FOR RESULT",
+            opponent_finished: "⚡ Opponent finished! Beat their adjusted time — {sec}s left",
+            victory: "VICTORY",
+            defeat: "DEFEAT",
+            disconnected: "disconnected.",
+            label_time: "TIME",
+            label_adjusted: "ADJUSTED",
+            label_wpm: "WPM",
+            penalty_text: "+{sec}s penalty ({n} mistake{s})",
+            back_lobby: "BACK TO LOBBY"
         }
     },
     de: {
@@ -149,7 +195,9 @@ const messages = {
             registerbutton: "Registrieren",
             errorEmpty: "Felder dürfen nicht leer sein",
             errorEmail: "Ungültige E-Mail Adresse",
-            errorFailed: "Fehler bei der Registrierung"
+            errorFailed: "Fehler bei der Registrierung",
+            errorUsername: "Benutzername muss 3–16 Zeichen lang sein (Buchstaben, Zahlen oder _).",
+            errorTaken: "Dieser Benutzername ist bereits vergeben."
         },
         roadmap: {
             title: "Skill Roadmap",
@@ -160,7 +208,7 @@ const messages = {
             default_level_desc: "Erreiche die Ziellinie dieses Levels.",
             level1_title: "Basisreihe",
             level1_desc: "Die mittlere Reihe.",
-            level2_title: "Obere Tasten dücken",
+            level2_title: "Obere Tasten drücken",
             level2_desc: "Obere Reihe.",
             level3_title: "Untere Tasten betätigen",
             level3_desc: "Untere Reihe.",
@@ -211,6 +259,50 @@ const messages = {
                 platinum: "Platin",
                 diamond: "Diamant"
             }
+        },
+        stats: {
+            live_rating: "Live-Rating",
+            games: "Spiele",
+            best_wpm: "Beste WPM",
+            avg_wpm: "Ø WPM",
+            mistakes: "Fehler",
+            rating: "Rating",
+            chart_title: "Rating-Verlauf",
+            history_title: "Spielverlauf",
+            th_player: "Spieler",
+            th_result: "Ergebnis",
+            th_wpm: "WPM",
+            th_mistakes: "Fehler",
+            th_time: "Zeit",
+            th_elo: "ELO",
+            win: "Sieg",
+            loss: "Niederlage",
+            empty: "Noch keine Spiele absolviert."
+        },
+        league: {
+            league_word: "LIGA",
+            recent_games: "LETZTE SPIELE",
+            no_games: "Noch keine Spiele",
+            title: "Liga Modus",
+            find_match: "Match finden",
+            find_match_desc: "Werde mit einem Spieler auf deinem Niveau verbunden.",
+            btn_ready: "BEREIT!",
+            btn_searching: "SUCHE...",
+            footer_desc: "Echtzeit-Matches gegen echte Spieler",
+            you: "DU",
+            connecting: "Verbinde...",
+            waiting_players: "Warte auf beide Spieler",
+            get_ready: "BEREIT MACHEN",
+            opponent_typing: "GEGNER TIPPT NOCH — WARTE AUF ERGEBNIS",
+            opponent_finished: "⚡ Gegner fertig! Schlage seine Zeit — noch {sec}s",
+            victory: "SIEG",
+            defeat: "NIEDERLAGE",
+            disconnected: "hat die Verbindung getrennt.",
+            label_time: "ZEIT",
+            label_adjusted: "BEREINIGT",
+            label_wpm: "WPM",
+            penalty_text: "+{sec}s Strafe ({n} Fehler)",
+            back_lobby: "ZURÜCK ZUR LOBBY"
         }
     },
     fr: {
@@ -255,7 +347,9 @@ const messages = {
             registerbutton: "S'inscrire",
             errorEmpty: "Les champs ne peuvent pas être vides",
             errorEmail: "Adresse e-mail invalide",
-            errorFailed: "Échec de l'inscription"
+            errorFailed: "Échec de l'inscription",
+            errorUsername: "Le nom d'utilisateur doit comporter 3 à 16 caractères (lettres, chiffres ou _).",
+            errorTaken: "Ce nom d'utilisateur est déjà pris."
         },
         roadmap: {
             title: "Feuille de route des compétences",
@@ -317,7 +411,50 @@ const messages = {
                 platinum: "Platine",
                 diamond: "Diamant"
             }
-
+        },
+        stats: {
+            live_rating: "Rating en direct",
+            games: "Parties",
+            best_wpm: "Meilleure VPM",
+            avg_wpm: "VPM Moy.",
+            mistakes: "Erreurs",
+            rating: "Rating",
+            chart_title: "Historique du Rating",
+            history_title: "Historique des parties",
+            th_player: "Joueur",
+            th_result: "Résultat",
+            th_wpm: "VPM",
+            th_mistakes: "Erreurs",
+            th_time: "Temps",
+            th_elo: "ELO",
+            win: "Victoire",
+            loss: "Défaite",
+            empty: "Aucune partie jouée."
+        },
+        league: {
+            league_word: "LIGUE",
+            recent_games: "DERNIÈRES PARTIES",
+            no_games: "Aucune partie",
+            title: "Mode Ligue",
+            find_match: "Trouver un match",
+            find_match_desc: "Trouve un adversaire de ton niveau.",
+            btn_ready: "PRÊT !",
+            btn_searching: "RECHERCHE...",
+            footer_desc: "Matchs en temps réel contre de vrais joueurs",
+            you: "TOI",
+            connecting: "Connexion...",
+            waiting_players: "En attente des deux joueurs",
+            get_ready: "PRÉPARE-TOI",
+            opponent_typing: "ADVERSAIRE ENCORE EN TRAIN DE TAPER",
+            opponent_finished: "⚡ Adversaire terminé ! Bats son temps — {sec}s restantes",
+            victory: "VICTOIRE",
+            defeat: "DÉFAITE",
+            disconnected: "s'est déconnecté.",
+            label_time: "TEMPS",
+            label_adjusted: "AJUSTÉ",
+            label_wpm: "VPM",
+            penalty_text: "+{sec}s de pénalité ({n} erreur{s})",
+            back_lobby: "RETOUR AU LOBBY"
         }
     }
 };

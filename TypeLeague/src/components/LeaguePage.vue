@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { supabase, supabaseUrl, supabaseAnonKey } from "../supabase";
 import Gameboard from "./gameboard.vue";
 
 const router = useRouter();
+const { t } = useI18n();
 const view = ref<'lobby' | 'arena' | 'results'>('lobby');
 const playerElo = ref(1000);
 const playerLanguageId = ref(1);
@@ -61,12 +63,12 @@ const getDifficultyFromElo = (elo: number): number => {
   return 5;
 };
 
-const getLeagueName = (elo: number): string => {
-  if (elo < 1200) return 'Bronze';
-  if (elo < 1400) return 'Silver';
-  if (elo < 1600) return 'Gold';
-  if (elo < 1800) return 'Platinum';
-  return 'Diamond';
+const getLeagueKey = (elo: number): string => {
+  if (elo < 1200) return 'bronze';
+  if (elo < 1400) return 'silver';
+  if (elo < 1600) return 'gold';
+  if (elo < 1800) return 'platinum';
+  return 'diamond';
 };
 
 const getLeagueRange = (elo: number) => {
@@ -77,7 +79,7 @@ const getLeagueRange = (elo: number) => {
   return { min: 1800, max: 9999 };
 };
 
-const leagueName = computed(() => getLeagueName(playerElo.value));
+const leagueName = computed(() => t('leaderboard.leagues.' + getLeagueKey(playerElo.value)));
 
 const loadUserData = async () => {
   const localUser = JSON.parse(localStorage.getItem('user') || '{}');
@@ -401,12 +403,12 @@ onUnmounted(() => {
       <aside class="side-panel">
         <div class="stats-card">
           <div class="elo-section">
-            <span class="elo-label">{{ leagueName.toUpperCase() }} LEAGUE</span>
+            <span class="elo-label">{{ leagueName.toUpperCase() }} {{ t('league.league_word') }}</span>
             <div class="elo-display"><span class="elo-value">{{ playerElo }}</span></div>
           </div>
           <div class="recent-matches">
-            <h4 class="matches-title">LETZTE SPIELE</h4>
-            <div v-if="lastGames.length === 0" class="no-games">Noch keine Spiele</div>
+            <h4 class="matches-title">{{ t('league.recent_games') }}</h4>
+            <div v-if="lastGames.length === 0" class="no-games">{{ t('league.no_games') }}</div>
             <div v-for="(game, index) in lastGames" :key="index" class="match-entry">
               <span class="opponent-name">{{ game.opponent }}</span>
               <span :class="['elo-change', game.win ? 'plus' : 'minus']">{{ game.change }}</span>
@@ -416,40 +418,40 @@ onUnmounted(() => {
       </aside>
       <main class="main-content">
         <div class="header-section">
-          <h1 class="league-title">League Mode</h1>
+          <h1 class="league-title">{{ t('league.title') }}</h1>
           <div class="divider-main"></div>
         </div>
         <div class="matchmaking-container">
           <div class="matchmaking-card">
             <div class="box-content">
-              <h3 class="box-title">Find a Match</h3>
-              <p class="box-text">Get matched against a player at your level.</p>
+              <h3 class="box-title">{{ t('league.find_match') }}</h3>
+              <p class="box-text">{{ t('league.find_match_desc') }}</p>
             </div>
             <button class="ready-btn" :class="{ 'is-searching': isSearching }" @click="toggleReady">
-              <span class="btn-text">{{ isSearching ? 'SEARCHING...' : 'READY!' }}</span>
+              <span class="btn-text">{{ isSearching ? t('league.btn_searching') : t('league.btn_ready') }}</span>
             </button>
           </div>
-          <p class="footer-description">Real-time matches against real players</p>
+          <p class="footer-description">{{ t('league.footer_desc') }}</p>
         </div>
       </main>
     </div>
     <div v-if="view === 'arena'" class="arena-container">
       <div v-if="!countdownStarted" class="countdown-overlay">
         <div class="connecting-spinner"></div>
-        <div class="countdown-number" style="font-size:3rem; margin-top:16px">Connecting...</div>
-        <div class="countdown-label">Waiting for both players</div>
+        <div class="countdown-number" style="font-size:3rem; margin-top:16px">{{ t('league.connecting') }}</div>
+        <div class="countdown-label">{{ t('league.waiting_players') }}</div>
       </div>
       <div v-else-if="countdown !== null" class="countdown-overlay">
         <div class="countdown-number">{{ countdown }}</div>
-        <div class="countdown-label">GET READY</div>
+        <div class="countdown-label">{{ t('league.get_ready') }}</div>
       </div>
       <div v-else-if="iFinishedFirst && gracePeriodLeft > 0" class="countdown-overlay grace-overlay">
         <div class="countdown-number">{{ gracePeriodLeft }}</div>
-        <div class="countdown-label">OPPONENT STILL TYPING — WAITING FOR ADJUSTED TIME</div>
+        <div class="countdown-label">{{ t('league.opponent_typing') }}</div>
       </div>
       <div class="race-track">
         <div class="lane">
-          <div class="lane-label">YOU ({{ playerProgress.toFixed(0) }}%)</div>
+          <div class="lane-label">{{ t('league.you') }} ({{ playerProgress.toFixed(0) }}%)</div>
           <div class="bar-bg"><div class="bar-fill" :style="{ width: playerProgress + '%' }"></div></div>
         </div>
         <div class="lane">
@@ -458,7 +460,7 @@ onUnmounted(() => {
         </div>
       </div>
       <div v-if="gracePeriodLeft > 0 && !iFinishedFirst" class="grace-bar">
-        <span class="grace-label">⚡ Opponent finished! Beat their adjusted time — {{ gracePeriodLeft }}s left</span>
+        <span class="grace-label">{{ t('league.opponent_finished', { sec: gracePeriodLeft }) }}</span>
         <div class="grace-bg"><div class="grace-fill" :style="{ width: (gracePeriodLeft / 10 * 100) + '%' }"></div></div>
       </div>
       <Gameboard
@@ -472,11 +474,11 @@ onUnmounted(() => {
     <div v-if="view === 'results'" class="results-screen">
       <div class="result-card" :class="didWin ? 'card-win' : 'card-lose'">
         <template v-if="opponentDisconnected">
-          <h1 class="result-title win-text">VICTORY</h1>
-          <p class="disconnect-msg">{{ opponentName }} disconnected.</p>
+          <h1 class="result-title win-text">{{ t('league.victory') }}</h1>
+          <p class="disconnect-msg">{{ opponentName }} {{ t('league.disconnected') }}</p>
         </template>
         <template v-else>
-          <h1 class="result-title" :class="didWin ? 'win-text' : 'lose-text'">{{ didWin ? 'VICTORY' : 'DEFEAT' }}</h1>
+          <h1 class="result-title" :class="didWin ? 'win-text' : 'lose-text'">{{ didWin ? t('league.victory') : t('league.defeat') }}</h1>
         </template>
 
         <div class="elo-change-badge" :class="resultEloChange >= 0 ? 'badge-win' : 'badge-lose'">
@@ -489,27 +491,27 @@ onUnmounted(() => {
         <template v-if="playerStats">
           <div class="result-stats">
             <div class="rs">
-              <span class="rs-label">TIME</span>
+              <span class="rs-label">{{ t('league.label_time') }}</span>
               <span class="rs-val">{{ playerStats.realTime.toFixed(2) }}s</span>
             </div>
             <div class="rs">
-              <span class="rs-label">ADJUSTED</span>
+              <span class="rs-label">{{ t('league.label_adjusted') }}</span>
               <span class="rs-val">{{ playerStats.adjustedTime.toFixed(2) }}s</span>
             </div>
             <div class="rs">
-              <span class="rs-label">WPM</span>
+              <span class="rs-label">{{ t('league.label_wpm') }}</span>
               <span class="rs-val rs-orange">{{ playerStats.wpm }}</span>
             </div>
           </div>
           <p v-if="playerStats.mistakes > 0" class="penalty-text">
-            +{{ playerStats.mistakes * 3 }}s penalty ({{ playerStats.mistakes }} mistake{{ playerStats.mistakes > 1 ? 's' : '' }})
+            {{ t('league.penalty_text', { sec: playerStats.mistakes * 3, n: playerStats.mistakes, s: playerStats.mistakes > 1 ? 's' : '' }) }}
           </p>
           <p v-if="opponentAdjustedTime !== null" class="opponent-time">
             {{ opponentName }}: {{ opponentAdjustedTime?.toFixed(2) }}s
           </p>
         </template>
 
-        <button class="ready-btn" @click="backToLobby">BACK TO LOBBY</button>
+        <button class="ready-btn" @click="backToLobby">{{ t('league.back_lobby') }}</button>
       </div>
     </div>
   </div>
@@ -536,7 +538,7 @@ onUnmounted(() => {
 .matchmaking-card { background: #1e293b; border-radius: 12px; padding: 25px 40px; display: flex; align-items: center; justify-content: space-between; }
 .ready-btn { background: #ff7e00; border: none; color: #0b0e14; padding: 14px 30px; font-size: 1.2rem; font-weight: 900; border-radius: 8px; cursor: pointer; transition: 0.2s; margin-top: 24px; }
 .is-searching { background: #cc6600; animation: pulse 1.5s infinite; }
-.arena-container { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 40px; position: relative; }
+.arena-container { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 20px 0 0; position: relative; }
 .race-track { width: 100%; max-width: 800px; margin-bottom: 20px; }
 .lane { margin-bottom: 20px; }
 .lane-label { font-size: 0.8rem; font-weight: 800; color: #64748b; margin-bottom: 5px; }

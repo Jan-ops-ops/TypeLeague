@@ -30,7 +30,7 @@ const register = async () => {
     }
 
     if (!/^[a-zA-Z0-9_]{3,16}$/.test(username.value)) {
-      error.value = 'Username must be 3–16 characters and only contain letters, numbers, or _.';
+      error.value = t('tregisterpage.errorUsername');
       return;
     }
 
@@ -41,7 +41,7 @@ const register = async () => {
       .maybeSingle();
 
     if (existing) {
-      error.value = 'This username is already taken.';
+      error.value = t('tregisterpage.errorTaken');
       return;
     }
 

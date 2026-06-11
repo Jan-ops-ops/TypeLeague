@@ -20,7 +20,6 @@ onMounted(() => {
   // Schaut beim Laden der App, ob bereits eine Sprache gespeichert wurde
   const savedLang = localStorage.getItem('user_lang');
   if (savedLang) {
-    currentLanguage.value = savedLang;
     locale.value = savedLang;
   }
 });

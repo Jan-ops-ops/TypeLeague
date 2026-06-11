@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
 import { useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { supabase } from "../supabase";
 import { Line } from 'vue-chartjs';
 import {
@@ -17,6 +18,7 @@ import {
 ChartJS.register(Title, Tooltip, Legend, LineElement, LinearScale, PointElement, CategoryScale);
 
 const router = useRouter();
+const { t } = useI18n();
 const username = ref('');
 const currentElo = ref(0);
 const statsSummary = ref<any>(null);
@@ -30,7 +32,25 @@ const loadUserStats = async () => {
   }
 
   const parsedUser = JSON.parse(userData);
-  const userId = parsedUser.id;
+  let userId = parsedUser.id;
+
+  if (!userId && parsedUser.name) {
+    const { data: found } = await supabase
+        .from('users')
+        .select('userid, username, elo')
+        .eq('username', parsedUser.name)
+        .single();
+    if (found) {
+      userId = found.userid;
+      username.value = found.username;
+      currentElo.value = Number(found.elo) || 0;
+    }
+  }
+
+  if (!userId) {
+    username.value = parsedUser.name || 'Spieler';
+    return;
+  }
 
   const { data: userDb, error: userError } = await supabase
       .from('users')
@@ -39,7 +59,6 @@ const loadUserStats = async () => {
       .single();
 
   if (userError || !userDb) {
-    console.error("RLS oder Query Fehler beim Laden des Users:", userError);
     username.value = parsedUser.name || 'Spieler';
   } else {
     username.value = userDb.username;
@@ -176,52 +195,52 @@ onMounted(() => {
       <div class="avatar-placeholder">{{ username.substring(0, 2).toUpperCase() }}</div>
       <div class="user-info">
         <h1>{{ username }}</h1>
-        <span class="user-badge">Live-Rating: {{ currentElo }}</span>
+        <span class="user-badge">{{ t('stats.live_rating') }}: {{ currentElo }}</span>
       </div>
     </div>
 
 
     <div v-if="statsSummary" class="stats-grid">
       <div class="stat-card">
-        <h3>Spiele</h3>
+        <h3>{{ t('stats.games') }}</h3>
         <p class="stat-value">{{ statsSummary.totalGames }}</p>
       </div>
       <div class="stat-card">
-        <h3>Höchste WPM</h3>
+        <h3>{{ t('stats.best_wpm') }}</h3>
         <p class="stat-value unique">{{ statsSummary.maxWpm }}</p>
       </div>
       <div class="stat-card">
-        <h3>Ø WPM</h3>
+        <h3>{{ t('stats.avg_wpm') }}</h3>
         <p class="stat-value">{{ statsSummary.avgWpm }}</p>
       </div>
       <div class="stat-card">
-        <h3>Fehler</h3>
+        <h3>{{ t('stats.mistakes') }}</h3>
         <p class="stat-value">{{ statsSummary.totalMistakes }}</p>
       </div>
       <div class="stat-cardHighlight">
-        <h3>Rating</h3>
+        <h3>{{ t('stats.rating') }}</h3>
         <p class="stat-value elo">{{ statsSummary.currentElo }}</p>
       </div>
     </div>
 
     <div class="chart-section" v-if="gameHistory.length > 0">
-      <h3>Liga Modus Verlauf</h3>
+      <h3>{{ t('stats.chart_title') }}</h3>
       <div class="chart-wrapper">
         <Line :data="chartData" :options="chartOptions" />
       </div>
     </div>
 
     <div class="history-section">
-      <h3>Spielverlauf</h3>
+      <h3>{{ t('stats.history_title') }}</h3>
       <table v-if="gameHistory && gameHistory.length > 0">
         <thead>
         <tr>
-          <th>Spieler</th>
-          <th>Ergebnis</th>
-          <th>WPM</th>
-          <th>Fehler</th>
-          <th>Zeit</th>
-          <th>ELO</th>
+          <th>{{ t('stats.th_player') }}</th>
+          <th>{{ t('stats.th_result') }}</th>
+          <th>{{ t('stats.th_wpm') }}</th>
+          <th>{{ t('stats.th_mistakes') }}</th>
+          <th>{{ t('stats.th_time') }}</th>
+          <th>{{ t('stats.th_elo') }}</th>
         </tr>
         </thead>
         <tbody>
@@ -236,7 +255,7 @@ onMounted(() => {
 
           <td>
             <span :class="play.elo_change >= 0 ? 'badge-win' : 'badge-loss'">
-              {{ play.elo_change >= 0 ? 'Sieg' : 'Niederlage' }}
+              {{ play.elo_change >= 0 ? t('stats.win') : t('stats.loss') }}
             </span>
           </td>
 
@@ -249,7 +268,7 @@ onMounted(() => {
         </tr>
         </tbody>
       </table>
-      <p v-else class="empty-state">Noch keine Spiele absolviert.</p>
+      <p v-else class="empty-state">{{ t('stats.empty') }}</p>
     </div>
   </div>
 </template>
@@ -420,7 +439,7 @@ tr:hover {
   font-weight: bold;
   text-transform: uppercase;
   display: inline-block;
-  width: 75px;
+  min-width: 75px;
 }
 
 .badge-win {
