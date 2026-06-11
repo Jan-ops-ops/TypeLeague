@@ -5,7 +5,7 @@ const props = defineProps<{
   gametext: string
 }>();
 
-const emit = defineEmits(['finished', 'start', 'progress']);
+const emit = defineEmits(['finished', 'start', 'progress', 'easteregg']);
 
 interface KeyboardKey {
   main: string;
@@ -119,6 +119,7 @@ const handleKeyDown = (e: KeyboardEvent) => {
     secretBuffer.value = (secretBuffer.value + e.key.toLowerCase()).slice(-secretPhrase.length);
     if (secretBuffer.value === secretPhrase) {
       showEasterEgg.value = true;
+      emit('easteregg');
       setTimeout(() => { showEasterEgg.value = false; secretBuffer.value = ""; }, 7000);
     }
   } else if (e.key === 'Backspace') {
@@ -131,9 +132,7 @@ const processKey = (inputKey: string) => {
   const expected = props.gametext[currentIndex.value];
   if (inputKey === expected) {
     currentIndex.value++;
-
     emit('progress', currentIndex.value);
-
     lastWrongIndex.value = -1;
     hasErrorAtPosition.value = false;
     if (currentIndex.value === props.gametext.length) finishGame();
@@ -276,7 +275,6 @@ onUnmounted(() => {
   transition: all 0.1s ease;
 }
 
-/* 10-Finger System Farben */
 .z1, .z8 { background: rgba(52, 152, 219, 0.2); color: #3498db; }
 .z2, .z7 { background: rgba(155, 89, 182, 0.2); color: #9b59b6; }
 .z3, .z6 { background: rgba(231, 76, 60, 0.2); color: #e74c3c; }
