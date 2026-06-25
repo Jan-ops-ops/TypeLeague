@@ -206,4 +206,8 @@ footer {
   text-align: center;
   font-weight: 600;
 }
+
+@media (max-width: 768px) {
+  .auth-box { padding: 28px 20px; margin: 16px; }
+}
 </style>

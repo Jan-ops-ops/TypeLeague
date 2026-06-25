@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, watch } from "vue";
 import Gameboard from "./gameboard.vue";
-import { useI18n } from 'vue-i18n'; // <- i18n importiert
+import MobileBlock from "./MobileBlock.vue";
+import { useI18n } from 'vue-i18n';
 
 const { t, locale } = useI18n(); // <- t und locale bereitgestellt
 
@@ -86,6 +87,7 @@ const winner = computed(() => {
 </script>
 
 <template>
+  <MobileBlock />
   <div class="training-wrapper">
     <div v-if="view === 'selection'" class="menu-card">
       <h1>{{ t('training.title') }}</h1>

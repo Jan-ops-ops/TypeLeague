@@ -164,4 +164,12 @@ onMounted(async () => {
 .league-gold     { color: #f59e0b; }
 .league-platinum { color: #67e8f9; }
 .league-diamond  { color: #a78bfa; }
+
+@media (max-width: 768px) {
+  .page { padding: 30px 16px; }
+  .title { font-size: 1.8rem; }
+  .table-header,
+  .table-row { grid-template-columns: 36px 1fr 80px 56px; padding: 10px 12px; }
+  .col-league { font-size: 0.7rem; }
+}
 </style>

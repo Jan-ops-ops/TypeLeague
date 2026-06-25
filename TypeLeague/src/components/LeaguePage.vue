@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { supabase, supabaseUrl, supabaseAnonKey } from "../supabase";
 import Gameboard from "./gameboard.vue";
+import MobileBlock from "./MobileBlock.vue";
 
 const router = useRouter();
 const { t } = useI18n();
@@ -398,6 +399,7 @@ onUnmounted(() => {
 </script>
 
 <template>
+  <MobileBlock />
   <div class="app-container">
     <div v-if="view === 'lobby'" class="league-page">
       <aside class="side-panel">

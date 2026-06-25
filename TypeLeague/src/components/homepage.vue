@@ -99,4 +99,10 @@ onMounted(() => {
 }
 
 @keyframes blink { 50% { opacity: 0; } }
+
+@media (max-width: 768px) {
+  .title { font-size: 3rem; }
+  .description, .why, .competitive { font-size: 1rem; margin-top: 14px; }
+  .cta-btn { margin-top: 28px; padding: 10px 22px; }
+}
 </style>

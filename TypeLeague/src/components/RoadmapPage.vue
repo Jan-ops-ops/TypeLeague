@@ -3,6 +3,7 @@ import { ref, onMounted, computed, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { supabase } from "../supabase";
 import { useI18n } from 'vue-i18n';
+import MobileBlock from "./MobileBlock.vue";
 
 const router = useRouter();
 const { t, locale } = useI18n();
@@ -122,6 +123,7 @@ function gotolevel(event: MouseEvent, level: any) {
 </script>
 
 <template>
+  <MobileBlock />
   <div class="roadmap-container">
     <h2 class="title">{{ t('roadmap.title') }}</h2>
     <p class="subtitle">{{ t('roadmap.subtitle') }}</p>
@@ -291,5 +293,14 @@ function gotolevel(event: MouseEvent, level: any) {
 .shake-it .level-card {
   animation: shake 0.4s ease-in-out;
   border-color: #ef4444;
+}
+
+@media (max-width: 768px) {
+  .roadmap-container { padding: 30px 16px; }
+  .title { font-size: 1.8rem; }
+  .vertical-path::before { left: 20px; }
+  .level-step.left,
+  .level-step.right { justify-content: flex-end; }
+  .level-card { width: calc(100% - 44px); }
 }
 </style>

@@ -451,4 +451,14 @@ tr:hover {
   background-color: #b23330;
   color: #fff;
 }
+
+@media (max-width: 768px) {
+  .stats-container { margin: 16px; padding: 16px; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .history-section { overflow-x: auto; }
+  table { min-width: 520px; }
+  th, td { padding: 10px 8px; font-size: 0.82rem; }
+  .chart-wrapper { height: 180px; }
+  .user-info h1 { font-size: 1.4rem; }
+}
 </style>

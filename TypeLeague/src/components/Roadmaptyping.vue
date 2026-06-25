@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import Gameboard from "./gameboard.vue";
+import MobileBlock from "./MobileBlock.vue";
 import { useRouter } from 'vue-router';
 import { onMounted, ref } from 'vue';
 import { supabase } from "../supabase";
@@ -71,6 +72,7 @@ async function onLevelFinished() {
 </script>
 
 <template>
+  <MobileBlock />
   <div class="roadmaptyping-container">
     <gameboard
       v-if="isReady && gametext"

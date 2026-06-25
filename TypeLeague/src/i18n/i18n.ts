@@ -127,6 +127,10 @@ const messages = {
             loss: "Loss",
             empty: "No matches yet."
         },
+        mobile: {
+            title: "Desktop Only",
+            message: "This feature requires a physical keyboard. Please use a PC or make your browser window wider to play."
+        },
         league: {
             league_word: "LEAGUE",
             recent_games: "RECENT GAMES",
@@ -279,6 +283,10 @@ const messages = {
             loss: "Niederlage",
             empty: "Noch keine Spiele absolviert."
         },
+        mobile: {
+            title: "Nur für Desktop",
+            message: "Diese Funktion benötigt eine physische Tastatur. Bitte nutze einen PC oder mache das Browserfenster breiter."
+        },
         league: {
             league_word: "LIGA",
             recent_games: "LETZTE SPIELE",
@@ -430,6 +438,10 @@ const messages = {
             win: "Victoire",
             loss: "Défaite",
             empty: "Aucune partie jouée."
+        },
+        mobile: {
+            title: "Desktop uniquement",
+            message: "Cette fonctionnalité nécessite un clavier physique. Utilise un PC ou agrandis la fenêtre du navigateur."
         },
         league: {
             league_word: "LIGUE",

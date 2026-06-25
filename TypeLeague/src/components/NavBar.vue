@@ -8,6 +8,7 @@ const router = useRouter();
 const route = useRoute();
 
 const dropdownOpen = ref(false);
+const menuOpen = ref(false);
 const isLoggedIn = ref(false);
 
 const checkAuth = () => {
@@ -16,15 +17,16 @@ const checkAuth = () => {
 
 onMounted(() => {
   checkAuth();
-
-  // Schaut beim Laden der App, ob bereits eine Sprache gespeichert wurde
   const savedLang = localStorage.getItem('user_lang');
   if (savedLang) {
     locale.value = savedLang;
   }
 });
 
-watch(() => route.path, checkAuth);
+watch(() => route.path, () => {
+  checkAuth();
+  menuOpen.value = false;
+});
 
 const toggleDropdown = () => {
   dropdownOpen.value = !dropdownOpen.value;
@@ -32,10 +34,7 @@ const toggleDropdown = () => {
 
 const switchLanguage = (lang: string) => {
   locale.value = lang;
-
-  // WICHTIG: Speichert die Sprache im Browser, damit sie beim Refresh bleibt!
   localStorage.setItem('user_lang', lang);
-
   dropdownOpen.value = false;
 };
 
@@ -73,13 +72,22 @@ const logout = () => {
           {{ locale.toUpperCase() }}
           <span class="arrow" :class="{ open: dropdownOpen }">▼</span>
         </button>
-
         <div class="lang-dropdown" v-show="dropdownOpen">
           <div class="lang-item" @click="switchLanguage('en')">EN</div>
           <div class="lang-item" @click="switchLanguage('de')">DE</div>
           <div class="lang-item" @click="switchLanguage('fr')">FR</div>
         </div>
       </div>
+
+      <button class="hamburger" @click="menuOpen = !menuOpen">☰</button>
+    </div>
+
+    <div class="mobile-menu" v-show="menuOpen" @click="menuOpen = false">
+      <router-link to="/roadmap" class="mobile-link">{{ $t('navbar.roadmap')}}</router-link>
+      <router-link to="/league" class="mobile-link">{{ $t('navbar.league')}}</router-link>
+      <router-link to="/training" class="mobile-link">{{ $t('navbar.training')}}</router-link>
+      <router-link to="/leaderboard" class="mobile-link">{{ $t('navbar.leaderboard')}}</router-link>
+      <router-link to="/stats" class="mobile-link">{{ $t('navbar.stats')}}</router-link>
     </div>
   </nav>
 </template>
@@ -93,6 +101,9 @@ const logout = () => {
   background: #05080D;
   font-family: 'Inter', sans-serif;
   border-bottom: 1px solid #263640;
+  position: sticky;
+  top: 0;
+  z-index: 10000;
 }
 
 .logo {
@@ -180,9 +191,56 @@ const logout = () => {
   background: #263640;
   border-radius: 8px;
   z-index: 100;
-  margin-top: 0px;
   overflow: hidden;
 }
 .lang-item { padding: 8px 20px; cursor: pointer; color: white; }
 .lang-item:hover { background: #BF5B04; }
+
+.hamburger {
+  display: none;
+  background: none;
+  border: 1px solid #263640;
+  color: white;
+  padding: 6px 11px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.mobile-menu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: #05080D;
+  border-bottom: 1px solid #263640;
+  flex-direction: column;
+}
+
+.mobile-link {
+  padding: 14px 24px;
+  color: #65768C;
+  text-decoration: none;
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  border-bottom: 1px solid #0d1520;
+  transition: color 0.2s;
+}
+
+.mobile-link:hover, .mobile-link.router-link-active {
+  color: #BF5B04;
+}
+
+@media (max-width: 768px) {
+  .navbar { padding: 12px 16px; }
+  .nav-links { display: none; }
+  .hamburger { display: block; }
+  .mobile-menu { display: flex; }
+  .btn-text { display: none; }
+  .btn { padding: 7px 12px; font-size: 0.85rem; }
+  .btn-outline { padding: 7px 12px; font-size: 0.85rem; }
+  .logo { font-size: 1.2rem; }
+}
 </style>

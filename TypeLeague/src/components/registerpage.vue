@@ -199,4 +199,8 @@ label {
   text-align: center;
   font-weight: 600;
 }
+
+@media (max-width: 768px) {
+  .register-form { padding: 28px 20px; margin: 16px; }
+}
 </style>
